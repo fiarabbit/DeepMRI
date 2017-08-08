@@ -1,32 +1,31 @@
-import chainer
-from chainer import dataset
-
 from chainer.dataset import DatasetMixin
 
-class AutoEncoderTrainDataset(DatasetMixin): # DatasetMixin supports default slicing
-    """ :meth:get_example returns numpy.ndarray of image
+import nibabel as nib
+from os import listdir
+from os import path
+import re
 
-    :ivar insize: size of image (i.e. 1st layer)
-    :ivar imgRoot: root directory of images
-    :ivar 
+class TimeSeriesAutoEncoderDataset(DatasetMixin):
+    regexp = re.compile(
+        'niftiDATA_Subject(?P<sid>\d{3})_Condition(?P<cid>\d{3}).nii')
 
-    """
-
-    def __init__(self, imgRoot, model):
-        """
-
-        :param str imgRoot: root directory of images
-        :param chainer.chainer.Chain model: model to be learned
-
-        """
-
-        self.imgRoot = imgRoot
-        self.insize = model.insize
-
-        pass
+    def __init__(self, root):
+        self.root = root
+        self.files = listdir(self.root)
+        self.subjects = [self.regexp.match(file).group('sid') for file in
+                         self.files]
+        self.subjectnumber = len(self.subjects)
+        self.frames = 150
 
     def __len__(self):
-        pass
+        return self.subjectnumber * self.frames
 
     def get_example(self, i):
-        pass
+        frame, subject = divmod(i, self.subjectnumber)
+        frame = int(frame)
+        filepath = path.join(
+            self.root, "niftiDATA_Subject{}_Condition000.nii"
+                .format(self.subjects[subject]))
+        img = nib.load(filepath)
+        npimg = img.dataobj[:, :, :, frame]
+        return npimg, npimg

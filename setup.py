@@ -4,7 +4,7 @@ setup(
     name='chainer2python3',
     version='',
     packages=find_packages(exclude=['images']),
-    install_requires=['chainer>=2.0.1','numpy>=1.13.1'],
+    install_requires=['chainer>=2.0.1','numpy>=1.13.1', 'nibabel'],
     url='',
     license='',
     author='hashimoto',

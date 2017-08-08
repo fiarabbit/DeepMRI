@@ -1,48 +1,85 @@
-#!/usr/bin/env python
 """module for training
 
-Program to set up a trainer, and execute trainer.run().
+Program to set up a :class:`chainer.training.Trainer`,
+and execute :meth:`~chainer.training.Trainer.run`.
 
-trainer is composed of
-- Dataset
-- Iterator
-- Chain ("model" in other deep learning architectures)
-- Optimizer
-- Updater
-- extensions
+:class:`~chainer.training.trainer.Trainer` contains::
+
+- Dataset (chainer.dataset.DatasetMixin)
+- Iterator (chainer.dataset.Iterator)
+- Chain (chainer.Chain ["model" in other deep learning architectures])
+- Optimizer (chainer.optimizer.Optimizer)
+- Updater (chainer.training.updater.Updater)
+- Extensions (chainer.training.extension.Extension)
 
 These units are arranged as follows:
 
-trainer - updater     - iterator - dataset
-       |- extensions |- optimizer - chain (model)
 
-Typically, users only have to implement chain and dataset.
-Users also have to choose optimizer from libraries.
+::
 
-Usually, the default trainer, updater and iterator works well,
-so Users do not have to implement it.
+    Trainer
+    ├── Updater
+    │   ├── Iterator
+    │   │   └── Dataset
+    │   └── Optimizer
+    │       └── Chain(model)
+    └── extensions
+
+Typically, users only have to implement :class:`~chainer.Chain`
+and :class:`Dataset <chainer.dataset.DatasetMixin>`.
+Users also have to choose :class:`~chainer.optimizer.Optimizer`
+from :mod:`chainer.optimizers`.
+
+Usually the default :class:`~chainer.training.Trainer`,
+:class:`Updater <~chainer.training.StandardUpdater>`,
+and :class:`Iterator <~chainer.iterators.SerialIterator>` works well,
+so users do not have to implement it.
 
 """
+
+from argparse import ArgumentParser
+
 import chainer.training
 from chainer import datasets, iterators, Chain, optimizers
 from chainer.training import updater as updaters
 from chainer.training import extensions, triggers
 
-import numpy
+import model as _model
+import dataset as _dataset
 
-import model
+import os
 
-if __name__ == '__main__':
-    """This module should be run via command line."""
+print(os.getcwd())
 
-    dataset = datasets.ImageDataset(paths='./images/imagelist.txt',
-                                    root='./images')
-    iterator = iterators.SerialIterator(dataset=dataset, batch_size=16,
-                                        repeat=True, shuffle=True)
-    model = model.UNET128()
+
+def main():
+    """ called if __name__==='__main__' """
+    parser = ArgumentParser()
+    parser.add_argument('--traindir', default='./data/timeseries/train')
+    parser.add_argument('--testdir', default='./data/timeseries/test')
+    parser.add_argument('--batchsize', type=int, default=2)
+    parser.add_argument('--gpu', type=int, default=-1)
+    parser.add_argument('--output', default='result')
+    args = parser.parse_args()
+
+    model = _model.ThreeDimensionalAutoEncoder()
+    if args.gpu >= 0:
+        chainer.cuda.get_device_from_id(args.gpu).use()
+        model.to_gpu()
+
+    train_dataset = _dataset.TimeSeriesAutoEncoderDataset(args.traindir)
+    test_dataset = _dataset.TimeSeriesAutoEncoderDataset(args.testdir)
+    train_iterator = iterators.SerialIterator(dataset=train_dataset,
+                                              batch_size=args.batchsize,
+                                              repeat=True,
+                                              shuffle=True)
+    test_iterator = iterators.SerialIterator(dataset=test_dataset,
+                                             batch_size=args.batchsize,
+                                             repeat=False, shuffle=False)
     optimizer = optimizers.MomentumSGD(lr=0.01, momentum=0.9)
     optimizer.setup(model)
-    updater = updaters.StandardUpdater(iterator=iterator, optimizer=optimizer,
+    updater = updaters.StandardUpdater(iterator=train_iterator,
+                                       optimizer=optimizer,
                                        device=None)
     trainer = chainer.training.Trainer(updater=updater,
                                        stop_trigger=(120000, 'iteration'),
@@ -54,7 +91,7 @@ if __name__ == '__main__':
     )
 
     snapshot_interval = (1000, 'iteration')
-    log_interval = (10, 'iteration')
+    log_interval = (1, 'iteration')
 
     trainer.extend(extensions.dump_graph('main/loss'))
     trainer.extend(extensions.snapshot(), trigger=snapshot_interval)
@@ -63,9 +100,16 @@ if __name__ == '__main__':
         trigger=log_interval
     )
     trainer.extend(extensions.LogReport(trigger=log_interval))
+    trainer.extend(extensions.observe_lr(), trigger=log_interval)
+    trainer.extend(extensions.Evaluator(test_iterator, model, device=args.gpu),
+                   trigger=log_interval)
     trainer.extend(extensions.PrintReport(
-        ['epoch', 'iteration', 'main/loss', 'lr']),
+        ['epoch', 'iteration', 'main/loss', 'validation/main/loss', 'lr']),
         trigger=log_interval
     )
 
     trainer.run()
+
+
+if __name__ == '__main__':
+    main()
