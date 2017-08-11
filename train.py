@@ -40,7 +40,7 @@ so users do not have to implement it.
 from argparse import ArgumentParser
 
 import chainer.training
-from chainer import datasets, iterators, Chain, optimizers
+from chainer import iterators, optimizers
 from chainer.training import updater as updaters
 from chainer.training import extensions, triggers
 
@@ -55,8 +55,12 @@ print(os.getcwd())
 def main():
     """ called if __name__==='__main__' """
     parser = ArgumentParser()
-    parser.add_argument('--traindir', default='./data/timeseries/train')
-    parser.add_argument('--testdir', default='./data/timeseries/test')
+    parser.add_argument('--datasetdir', default='./data/timeseries/all')
+    parser.add_argument('--split',
+                        choices=['inter', 'intra'], default='inter')
+    parser.add_argument('--split_ratio', type=tuple, default=(4, 1))
+    # parser.add_argument('--traindir', default='./data/timeseries/train')
+    # parser.add_argument('--testdir', default='./data/timeseries/test')
     parser.add_argument('--batchsize', type=int, default=2)
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--output', default='result')
@@ -67,8 +71,12 @@ def main():
         chainer.cuda.get_device_from_id(args.gpu).use()
         model.to_gpu()
 
-    train_dataset = _dataset.TimeSeriesAutoEncoderDataset(args.traindir)
-    test_dataset = _dataset.TimeSeriesAutoEncoderDataset(args.testdir)
+    all_dataset = _dataset.TimeSeriesAutoEncoderDataset(args.datasetdir,
+                                                        split_inter=args.split)
+    train_dataset, test_dataset = all_dataset.get_subdatasets()
+
+    # train_dataset = _dataset.TimeSeriesAutoEncoderDataset(args.traindir)
+    # test_dataset = _dataset.TimeSeriesAutoEncoderDataset(args.testdir)
     train_iterator = iterators.SerialIterator(dataset=train_dataset,
                                               batch_size=args.batchsize,
                                               repeat=True,
