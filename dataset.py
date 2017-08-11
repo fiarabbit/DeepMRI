@@ -1,6 +1,5 @@
 from chainer.dataset import DatasetMixin
 from chainer.datasets import split_dataset
-from chainer import Variable
 
 import nibabel as nib
 from os import listdir
@@ -38,7 +37,7 @@ class TimeSeriesAutoEncoderDataset(DatasetMixin):
             self.root, "niftiDATA_Subject{}_Condition000.nii"
                 .format(self.subjects[subject]))
         img = nib.load(filepath)
-        npimg = Variable(img.dataobj[:, :, :, frame])
+        npimg = img.dataobj[:, :, :, frame]
         return npimg, npimg
 
     def get_subdatasets(self):
