@@ -29,7 +29,7 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
 
     def calc(self, x):
         _shape = list(x.shape)
-        _shape.insert(1, 1)
+        _shape.insert(1, 1) # specify # of first channel
 
         c1 = F.tanh(self.conv1(F.reshape(x,tuple(_shape))))
         _shape = None
