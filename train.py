@@ -88,7 +88,7 @@ def main():
     optimizer.setup(model)
     updater = updaters.StandardUpdater(iterator=train_iterator,
                                        optimizer=optimizer,
-                                       device=None)
+                                       device=args.gpu)
     trainer = chainer.training.Trainer(updater=updater,
                                        stop_trigger=(120000, 'iteration'),
                                        out='result')
