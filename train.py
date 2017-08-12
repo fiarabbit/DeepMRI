@@ -61,7 +61,7 @@ def main():
     parser.add_argument('--split_ratio', type=tuple, default=(4, 1))
     # parser.add_argument('--traindir', default='./data/timeseries/train')
     # parser.add_argument('--testdir', default='./data/timeseries/test')
-    parser.add_argument('--batchsize', type=int, default=2)
+    parser.add_argument('--batchsize', type=int, default=128)
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--output', default='result')
     args = parser.parse_args()
@@ -84,7 +84,8 @@ def main():
     test_iterator = iterators.SerialIterator(dataset=test_dataset,
                                              batch_size=args.batchsize,
                                              repeat=False, shuffle=False)
-    optimizer = optimizers.MomentumSGD(lr=0.01, momentum=0.9)
+    # optimizer = optimizers.MomentumSGD(lr=0.01, momentum=0.9)
+    optimizer = optimizers.Adam()
     optimizer.setup(model)
     updater = updaters.StandardUpdater(iterator=train_iterator,
                                        optimizer=optimizer,
