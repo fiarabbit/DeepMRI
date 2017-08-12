@@ -87,8 +87,9 @@ def main():
                                              repeat=False, shuffle=False)
     # optimizer = optimizers.MomentumSGD(lr=0.01, momentum=0.9)
     optimizer = optimizers.Adam(alpha=0.001)
-    optimizer.add_hook(WeightDecay(0.000001))
     optimizer.setup(model)
+    optimizer.add_hook(WeightDecay(0.000001))
+
     updater = updaters.StandardUpdater(iterator=train_iterator,
                                        optimizer=optimizer,
                                        device=args.gpu)
