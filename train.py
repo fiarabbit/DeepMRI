@@ -103,7 +103,7 @@ def main():
     # )
 
     snapshot_interval = (1000, 'iteration')
-    log_interval = (1, 'iteration')
+    log_interval = (10, 'iteration')
 
     trainer.extend(extensions.dump_graph('main/loss'))
     trainer.extend(extensions.snapshot(), trigger=snapshot_interval)
