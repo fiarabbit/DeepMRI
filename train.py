@@ -41,6 +41,7 @@ from argparse import ArgumentParser
 
 import chainer.training
 from chainer import iterators, optimizers
+from chainer.optimizer import WeightDecay
 from chainer.training import updater as updaters
 from chainer.training import extensions, triggers
 
@@ -86,6 +87,7 @@ def main():
                                              repeat=False, shuffle=False)
     # optimizer = optimizers.MomentumSGD(lr=0.01, momentum=0.9)
     optimizer = optimizers.Adam()
+    optimizer.add_hook(WeightDecay(0.000001))
     optimizer.setup(model)
     updater = updaters.StandardUpdater(iterator=train_iterator,
                                        optimizer=optimizer,
