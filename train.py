@@ -88,7 +88,7 @@ def main():
     optimizer = optimizers.MomentumSGD(lr=0.01, momentum=0.9)
     # optimizer = optimizers.Adam(alpha=0.001)
     optimizer.setup(model)
-    optimizer.add_hook(WeightDecay(0.000001))
+    optimizer.add_hook(WeightDecay(0.0005))
 
     updater = updaters.StandardUpdater(iterator=train_iterator,
                                        optimizer=optimizer,
