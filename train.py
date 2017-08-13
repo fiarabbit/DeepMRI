@@ -98,7 +98,7 @@ def main():
                                        out='result')
     # if you use SGD, following extension has to be set
     trainer.extend(
-        extensions.ExponentialShift('lr', 0.1, init=0.001),
+        extensions.ExponentialShift('lr', 0.1, init=0.1),
         trigger=triggers.ManualScheduleTrigger([80000, 100000], 'iteration')
     )
 
