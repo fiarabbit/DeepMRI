@@ -99,7 +99,7 @@ def main():
     # if you use SGD, following extension has to be set
     trainer.extend(
         extensions.ExponentialShift('lr', 0.1, init=0.1),
-        trigger=triggers.ManualScheduleTrigger([220, 280], 'iteration')
+        trigger=triggers.ManualScheduleTrigger([220, 280], 'epoch')
     )
 
     snapshot_interval = (1000, 'iteration')
