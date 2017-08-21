@@ -1,0 +1,9 @@
+if batch = 32
+    lr:80000iter = 2560000 images
+    lr:100000iter = 3200000 images
+    stop:120000iter = 3840000 images
+
+if batch = 128
+    lr: 20000iter
+    lr: 25000iter
+    lr: 30000iter
