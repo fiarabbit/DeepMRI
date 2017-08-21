@@ -85,8 +85,8 @@ def main():
     test_iterator = iterators.SerialIterator(dataset=test_dataset,
                                              batch_size=args.batchsize,
                                              repeat=False, shuffle=False)
-    # optimizer = optimizers.MomentumSGD(lr=0.01, momentum=0.9)
-    optimizer = optimizers.Adam()
+    optimizer = optimizers.MomentumSGD(lr=0.01, momentum=0.9)
+    # optimizer = optimizers.Adam()
     optimizer.setup(model)
     optimizer.add_hook(WeightDecay(0.0005))
 
@@ -94,13 +94,13 @@ def main():
                                        optimizer=optimizer,
                                        device=args.gpu)
     trainer = chainer.training.Trainer(updater=updater,
-                                       stop_trigger=(120000, 'iteration'),
+                                       stop_trigger=(30000, 'iteration'),
                                        out='result')
     # if you use SGD, following extension has to be set
-    # trainer.extend(
-    #     extensions.ExponentialShift('lr', 0.1, init=0.001),
-    #     trigger=triggers.ManualScheduleTrigger([220, 280], 'epoch')
-    # )
+    trainer.extend(
+        extensions.ExponentialShift('lr', 0.1, init=0.001),
+        trigger=triggers.ManualScheduleTrigger([20000, 25000], 'epoch')
+    )
 
     snapshot_interval = (1000, 'iteration')
     log_interval = (10, 'iteration')
