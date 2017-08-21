@@ -6,6 +6,7 @@ import chainer.links as L
 
 class ThreeDimensionalAutoEncoder(chainer.Chain):
     in_size = (91, 109, 91)
+    self.activation = F.relu
 
     def __init__(self):
         super().__init__()
@@ -32,20 +33,20 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
         _shape.insert(1, 1)  # specify # of first channel
 
         c0 = F.reshape(x, tuple(_shape))
-        c1 = F.tanh(self.conv1(c0))
+        c1 = self.activation(self.conv1(c0))
         _shape = None
-        c2 = F.tanh(self.conv2(c1))
-        c3 = F.tanh(self.conv3(c2))
-        c4 = F.tanh(self.conv4(c3))
-        l1 = F.tanh(self.bn1(self.l1(c4)))
-        l2 = F.tanh(self.bn2(self.l2(l1)))
-        l3 = F.tanh(self.bn3(self.l3(l2)))
-        l4 = F.tanh(self.bn4(self.l4(l3)))
+        c2 = self.activation(self.conv2(c1))
+        c3 = self.activation(self.conv3(c2))
+        c4 = self.activation(self.conv4(c3))
+        l1 = self.activation(self.bn1(self.l1(c4)))
+        l2 = self.activation(self.bn2(self.l2(l1)))
+        l3 = self.activation(self.bn3(self.l3(l2)))
+        l4 = self.activation(self.bn4(self.l4(l3)))
         b4 = F.reshape(l4, (l4.shape[0], 128, 1, 1, 1))
-        b3 = F.tanh(self.deconv4(b4))
-        b2 = F.tanh(self.deconv3(b3))
-        b1 = F.tanh(self.deconv2(b2))
-        y = F.tanh(self.deconv1(b1))
+        b3 = self.activation(self.deconv4(b4))
+        b2 = self.activation(self.deconv3(b3))
+        b1 = self.activation(self.deconv2(b2))
+        y = self.activation(self.deconv1(b1))
 
         _shape = list(y.shape)
         _shape.pop(1)
