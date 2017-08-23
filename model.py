@@ -6,7 +6,6 @@ import chainer.links as L
 
 class ThreeDimensionalAutoEncoder(chainer.Chain):
     in_size = (91, 109, 91)
-    activation = F.relu
 
     def __init__(self):
         super().__init__()
@@ -32,14 +31,14 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
         _shape.insert(1, 1)  # specify # of first channel
 
         c0 = F.reshape(x, tuple(_shape))
-        c1 = self.activation(self.bnc1(self.conv1(c0)))
-        c2 = self.activation(self.bnc2(self.conv2(c1)))
-        c3 = self.activation(self.bnc3(self.conv3(c2)))
-        c4 = self.activation(self.bnc4(self.conv4(c3)))
-        b3 = self.activation(self.bnd4(self.deconv4(c4)))
-        b2 = self.activation(self.bnd3(self.deconv3(b3)))
-        b1 = self.activation(self.bnd2(self.deconv2(b2)))
-        y = self.activation(self.deconv1(b1))
+        c1 = F.relu(self.bnc1(self.conv1(c0)))
+        c2 = F.relu(self.bnc2(self.conv2(c1)))
+        c3 = F.relu(self.bnc3(self.conv3(c2)))
+        c4 = F.relu(self.bnc4(self.conv4(c3)))
+        b3 = F.relu(self.bnd4(self.deconv4(c4)))
+        b2 = F.relu(self.bnd3(self.deconv3(b3)))
+        b1 = F.relu(self.bnd2(self.deconv2(b2)))
+        y = F.relu(self.deconv1(b1))
 
         _shape = list(y.shape)
         _shape.pop(1)
