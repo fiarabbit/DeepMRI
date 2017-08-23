@@ -6,7 +6,7 @@ import chainer.links as L
 
 class ThreeDimensionalAutoEncoder(chainer.Chain):
     in_size = (91, 109, 91)
-    self.activation = F.relu
+    activation = F.relu
 
     def __init__(self):
         super().__init__()
