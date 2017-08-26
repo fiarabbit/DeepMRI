@@ -44,6 +44,7 @@ from chainer import iterators, optimizers
 from chainer.optimizer import WeightDecay
 from chainer.training import updater as updaters
 from chainer.training import extensions, triggers
+from chainer.serializers import load_npz
 
 import model as _model
 import dataset as _dataset
@@ -65,6 +66,7 @@ def main():
     parser.add_argument('--batchsize', type=int, default=128)
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--output', default='result')
+    parser.add_argument('--resumeFrom')
     args = parser.parse_args()
 
     model = _model.ThreeDimensionalAutoEncoder()
@@ -119,6 +121,8 @@ def main():
         ['epoch', 'iteration', 'main/loss', 'validation/main/loss', 'lr']),
         trigger=log_interval
     )
+    if args.resumeFrom is not None:
+        load_npz(args.resumeFrom, trainer)
 
     trainer.run()
 
