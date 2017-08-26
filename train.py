@@ -67,7 +67,7 @@ def main():
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--output', default='result')
     parser.add_argument('--resumeFrom')
-    parser.add_argument('--exponentialShift', default=1)
+    parser.add_argument('--exponentialShift', default=1, type=float)
     args = parser.parse_args()
 
     model = _model.ThreeDimensionalAutoEncoder()
