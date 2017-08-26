@@ -67,6 +67,7 @@ def main():
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--output', default='result')
     parser.add_argument('--resumeFrom')
+    parser.add_argument('--exponentialShift', default=1)
     args = parser.parse_args()
 
     model = _model.ThreeDimensionalAutoEncoder()
@@ -98,11 +99,6 @@ def main():
     trainer = chainer.training.Trainer(updater=updater,
                                        stop_trigger=(30000, 'iteration'),
                                        out='result')
-    # if you use SGD, following extension has to be set
-    trainer.extend(
-        extensions.ExponentialShift('lr', 0.1, init=0.001),
-        trigger=triggers.ManualScheduleTrigger([20000, 25000], 'epoch')
-    )
 
     snapshot_interval = (1000, 'iteration')
     log_interval = (10, 'iteration')
@@ -123,7 +119,14 @@ def main():
     )
     if args.resumeFrom is not None:
         load_npz(args.resumeFrom, trainer)
+        optimizer.lr = optimizer.lr * args.exponentialShift
 
+    # # if you use SGD, following extension has to be set
+    # trainer.extend(
+    #     extensions.ExponentialShift('lr', 0.1, init=0.001),
+    #     trigger=triggers.ManualScheduleTrigger([20000, 25000], 'epoch')
+    # )
+    
     trainer.run()
 
 
