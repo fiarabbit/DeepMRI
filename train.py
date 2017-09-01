@@ -73,6 +73,7 @@ def main():
     model = _model.ThreeDimensionalAutoEncoder()
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()
+        model.to_gpu()
 
     all_dataset = _dataset.TimeSeriesAutoEncoderDataset(args.datasetdir,
                                                         split_inter=args.split)
@@ -92,14 +93,9 @@ def main():
     optimizer.setup(model)
     optimizer.add_hook(WeightDecay(0.0005))
 
-    if args.resumeFrom is None:
-        updater = updaters.StandardUpdater(iterator=train_iterator,
-                                           optimizer=optimizer,
-                                           device=args.gpu)
-    else:
-        updater = updaters.StandardUpdater(iterator=train_iterator,
-                                           optimizer=optimizer,
-                                           device=-1)
+    updater = updaters.StandardUpdater(iterator=train_iterator,
+                                       optimizer=optimizer,
+                                       device=args.gpu)
 
     trainer = chainer.training.Trainer(updater=updater,
                                        stop_trigger=(30000, 'iteration'),
@@ -116,8 +112,11 @@ def main():
     )
     trainer.extend(extensions.LogReport(trigger=log_interval))
     trainer.extend(extensions.observe_lr(), trigger=log_interval)
-    trainer.extend(extensions.Evaluator(test_iterator, model, device=args.gpu),
-                   trigger=log_interval)
+    evaluator = extensions.Evaluator(test_iterator, model, device=args.gpu)
+    trainer.extend(evaluator, trigger=log_interval)
+    if args.resumeFrom is not None:
+        evaluator.device = -1
+
     trainer.extend(extensions.PrintReport(
         ['epoch', 'iteration', 'main/loss', 'validation/main/loss', 'lr']),
         trigger=log_interval
@@ -125,11 +124,6 @@ def main():
     if args.resumeFrom is not None:
         load_npz(args.resumeFrom, trainer)
         optimizer.lr = optimizer.lr * args.exponentialShift
-        import six
-        for _optimizer in six.itervalues(updater.get_all_optimizers()):
-            print(_optimizer.target)
-            _optimizer.target.to_gpu(args.gpu)
-        updater.device = args.gpu
 
     # # if you use SGD, following extension has to be set
     # trainer.extend(
