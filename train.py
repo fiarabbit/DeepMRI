@@ -73,7 +73,6 @@ def main():
     model = _model.ThreeDimensionalAutoEncoder()
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()
-        model.to_gpu()
 
     all_dataset = _dataset.TimeSeriesAutoEncoderDataset(args.datasetdir,
                                                         split_inter=args.split)
