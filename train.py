@@ -126,8 +126,9 @@ def main():
     if args.resumeFrom is not None:
         load_npz(args.resumeFrom, trainer)
         optimizer.lr = optimizer.lr * args.exponentialShift
+        import six
         for _optimizer in six.itervalues(updater.get_all_optimizers()):
-            _optimizer.target.to_gpu(device)
+            _optimizer.target.to_gpu()
 
     # # if you use SGD, following extension has to be set
     # trainer.extend(
