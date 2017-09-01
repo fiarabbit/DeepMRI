@@ -93,7 +93,7 @@ def main():
     optimizer.setup(model)
     optimizer.add_hook(WeightDecay(0.0005))
 
-    if args.resumeFrom is not None:
+    if args.resumeFrom is None:
         updater = updaters.StandardUpdater(iterator=train_iterator,
                                            optimizer=optimizer,
                                            device=args.gpu)
