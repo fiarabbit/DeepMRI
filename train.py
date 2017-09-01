@@ -113,9 +113,8 @@ def main():
     trainer.extend(extensions.LogReport(trigger=log_interval))
     trainer.extend(extensions.observe_lr(), trigger=log_interval)
     evaluator = extensions.Evaluator(test_iterator, model, device=args.gpu)
-    trainer.extend(evaluator, trigger=log_interval)
-    if args.resumeFrom is not None:
-        evaluator.device = -1
+    if args.resumeFrom is None:
+        trainer.extend(evaluator, trigger=log_interval)
 
     trainer.extend(extensions.PrintReport(
         ['epoch', 'iteration', 'main/loss', 'validation/main/loss', 'lr']),
