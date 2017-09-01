@@ -129,7 +129,7 @@ def main():
         import six
         for _optimizer in six.itervalues(updater.get_all_optimizers()):
             print(_optimizer.target)
-            _optimizer.target.to_gpu()
+            _optimizer.target.to_gpu(args.gpu)
 
     # # if you use SGD, following extension has to be set
     # trainer.extend(
