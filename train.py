@@ -124,11 +124,11 @@ def main():
         trigger=log_interval
     )
     if args.resumeFrom is not None:
-        print('hoge')
         load_npz(args.resumeFrom, trainer)
         optimizer.lr = optimizer.lr * args.exponentialShift
         import six
         for _optimizer in six.itervalues(updater.get_all_optimizers()):
+            print(_optimizer)
             _optimizer.target.to_gpu()
 
     # # if you use SGD, following extension has to be set
