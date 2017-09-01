@@ -124,6 +124,7 @@ def main():
         trigger=log_interval
     )
     if args.resumeFrom is not None:
+        print('hoge')
         load_npz(args.resumeFrom, trainer)
         optimizer.lr = optimizer.lr * args.exponentialShift
         import six
