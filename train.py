@@ -93,9 +93,15 @@ def main():
     optimizer.setup(model)
     optimizer.add_hook(WeightDecay(0.0005))
 
-    updater = updaters.StandardUpdater(iterator=train_iterator,
-                                       optimizer=optimizer,
-                                       device=args.gpu)
+    if args.resumeFrom is not None:
+        updater = updaters.StandardUpdater(iterator=train_iterator,
+                                           optimizer=optimizer,
+                                           device=args.gpu)
+    else:
+        updater = updaters.StandardUpdater(iterator=train_iterator,
+                                           optimizer=optimizer,
+                                           device=-1)
+
     trainer = chainer.training.Trainer(updater=updater,
                                        stop_trigger=(30000, 'iteration'),
                                        out='result')
@@ -120,13 +126,15 @@ def main():
     if args.resumeFrom is not None:
         load_npz(args.resumeFrom, trainer)
         optimizer.lr = optimizer.lr * args.exponentialShift
+        for _optimizer in six.itervalues(updater.get_all_optimizers()):
+            _optimizer.target.to_gpu(device)
 
     # # if you use SGD, following extension has to be set
     # trainer.extend(
     #     extensions.ExponentialShift('lr', 0.1, init=0.001),
     #     trigger=triggers.ManualScheduleTrigger([20000, 25000], 'epoch')
     # )
-    
+
     trainer.run()
 
 
