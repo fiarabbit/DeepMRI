@@ -64,6 +64,7 @@ def main():
     # parser.add_argument('--traindir', default='./data/timeseries/train')
     # parser.add_argument('--testdir', default='./data/timeseries/test')
     parser.add_argument('--batchsize', type=int, default=128)
+    parser.add_argument('--testBatchsize', type=int, default=64)
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--output', default='result')
     parser.add_argument('--resumeFrom')
@@ -86,7 +87,7 @@ def main():
                                               repeat=True,
                                               shuffle=True)
     test_iterator = iterators.SerialIterator(dataset=test_dataset,
-                                             batch_size=args.batchsize,
+                                             batch_size=args.testBatchsize,
                                              repeat=False, shuffle=False)
     optimizer = optimizers.MomentumSGD(lr=0.01, momentum=0.9)
     # optimizer = optimizers.Adam()
@@ -113,8 +114,7 @@ def main():
     trainer.extend(extensions.LogReport(trigger=log_interval))
     trainer.extend(extensions.observe_lr(), trigger=log_interval)
     evaluator = extensions.Evaluator(test_iterator, model, device=args.gpu)
-    if args.resumeFrom is None:
-        trainer.extend(evaluator, trigger=log_interval)
+    trainer.extend(evaluator, trigger=log_interval)
 
     trainer.extend(extensions.PrintReport(
         ['epoch', 'iteration', 'main/loss', 'validation/main/loss', 'lr']),
