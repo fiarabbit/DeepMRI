@@ -88,8 +88,8 @@ def main():
     test_iterator = iterators.SerialIterator(dataset=test_dataset,
                                              batch_size=args.batchsize,
                                              repeat=False, shuffle=False)
-    optimizer = optimizers.MomentumSGD(lr=0.01, momentum=0.9)
-    # optimizer = optimizers.Adam()
+    # optimizer = optimizers.MomentumSGD(lr=0.01, momentum=0.9)
+    optimizer = optimizers.Adam()
     optimizer.setup(model)
     optimizer.add_hook(WeightDecay(0.0005))
 
