@@ -7,13 +7,11 @@ datasetdir = '/data/timeseries'
 files = listdir(datasetdir)
 len_files = len(files)
 len_frames = 150
-mean = np.empty((len_frames, len_files))
-std = np.empty((len_frames, len_files))
-mean_s = np.empty((len_files,))
-std_s = np.empty((len_files,))
-
-arrays = [nib.load(join(datasetdir, files[l])).dataobj for l in range(len_files)]
-print(np.stack(arrays, axis=-1).shape)
+h = np.histogram(nib.load(join(datasetdir, files[0])).dataobj)
+print(h)
+#
+# arrays = [nib.load(join(datasetdir, files[l])).dataobj for l in range(len_files)]
+# print(np.stack(arrays, axis=-1).shape)
 
 # for l in range(len_files):
 #     path = join(datasetdir, files[l])
