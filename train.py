@@ -65,7 +65,7 @@ def main():
     parser.add_argument('--split_ratio', type=tuple, default=(4, 1))
     # parser.add_argument('--traindir', default='./data/timeseries/train')
     # parser.add_argument('--testdir', default='./data/timeseries/test')
-    parser.add_argument('--batchsize', type=int, default=128)
+    parser.add_argument('--batchsize', type=int, default=64)
     parser.add_argument('--testBatchsize', type=int, default=64)
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--output', default='result')
