@@ -7,7 +7,8 @@ import chainer.links as L
 class ThreeDimensionalAutoEncoder(chainer.Chain):
     in_size = (91, 109, 91)
 
-    def __init__(self):
+    def __init__(self, mask):
+        assert tuple(mask.shape) == self.in_size
         super().__init__()
         with self.init_scope():
             self.conv1 = L.ConvolutionND(3, 1, 16, (3, 5, 3), 2, 0)
@@ -26,9 +27,12 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
             self.deconv3 = L.DeconvolutionND(3, 64, 32, (7, 8, 7), 2, 0)
             self.deconv2 = L.DeconvolutionND(3, 32, 16, (5, 7, 5), 2, 0)
             self.deconv1 = L.DeconvolutionND(3, 16, 1, (3, 5, 3), 2, 0)
+            self.mask = chainer.Parameter(mask)
 
     def calc(self, x):
         _shape = list(x.shape)
+        assert tuple(_shape[1:]) == self.in_size
+
         _shape.insert(1, 1)  # specify # of first channel
 
         c0 = F.reshape(x, tuple(_shape))
@@ -52,8 +56,10 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
 
         return F.reshape(y, tuple(_shape))
 
-    def __call__(self, x, t):
-        y = self.calc(x)
-        loss = F.mean_absolute_error(y, t)
+    def __call__(self, x):
+        x_masked = F.scale(x, self.mask, axis=1)
+        y = self.calc(x_masked)
+        y_masked = F.scale(y, self.mask, axis=1)
+        loss = F.mean_absolute_error(y_masked, x_masked)
         chainer.report({'loss': loss}, self)
         return loss
