@@ -38,7 +38,7 @@ class TimeSeriesAutoEncoderDataset(DatasetMixin):
                 .format(self.subjects[subject]))
         img = nib.load(filepath)
         npimg = img.dataobj[:, :, :, frame]
-        return npimg, npimg
+        return npimg
 
     def get_subdatasets(self):
         order = []
