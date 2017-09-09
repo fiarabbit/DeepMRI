@@ -105,7 +105,7 @@ def main():
     trainer = chainer.training.Trainer(updater=updater,
                                        stop_trigger=(30000, 'iteration'),
                                        out='result')
-
+    model_interval = (100, 'iteration')
     snapshot_interval = (1000, 'iteration')
     log_interval = (10, 'iteration')
 
@@ -113,7 +113,7 @@ def main():
     trainer.extend(extensions.snapshot(), trigger=snapshot_interval)
     trainer.extend(extensions.snapshot_object(
         model, 'model_iter_{.updater.iteration}'),
-        trigger=log_interval
+        trigger=model_interval
     )
     trainer.extend(extensions.LogReport(trigger=log_interval))
     trainer.extend(extensions.observe_lr(), trigger=log_interval)
@@ -128,11 +128,10 @@ def main():
         optimizer.lr = optimizer.lr * args.exponentialShift
 
     # # if you use SGD, following extension has to be set
-    # trainer.extend(
-    #     extensions.ExponentialShift('lr', 0.1, init=0.001),
-    #     trigger=triggers.ManualScheduleTrigger([20000, 25000], 'epoch')
-    # )
-    
+    trainer.extend(
+        extensions.ExponentialShift('lr', 0.1, init=0.001),
+        trigger=(4000, 'iteration'))
+
     trainer.run()
 
 
