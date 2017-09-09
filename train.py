@@ -129,7 +129,7 @@ def main():
 
     # # if you use SGD, following extension has to be set
     trainer.extend(
-        extensions.ExponentialShift('lr', 0.1, init=0.001),
+        extensions.ExponentialShift('lr', 0.1, init=0.01),
         trigger=(4000, 'iteration'))
 
     trainer.run()
