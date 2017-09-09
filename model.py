@@ -9,6 +9,7 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
 
     def __init__(self, mask):
         assert tuple(mask.shape) == self.in_size
+        print(mask.dtype)
         super().__init__()
         with self.init_scope():
             self.conv1 = L.ConvolutionND(3, 1, 3, (7, 7, 7), 2, 0)
