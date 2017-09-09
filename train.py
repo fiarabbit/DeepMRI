@@ -47,6 +47,7 @@ from chainer.training import extensions, triggers
 from chainer.serializers import load_npz
 
 import nibabel as nib
+import numpy as np
 
 import model as _model
 import dataset as _dataset
@@ -74,7 +75,8 @@ def main():
     parser.add_argument('--mask', default='/data/mask/average_optthr.nii')
     args = parser.parse_args()
 
-    model = _model.ThreeDimensionalAutoEncoder(nib.load(args.mask).get_data())
+    mask = np.array(nib.load(args.mask).get_data(), dtype=np.float32)
+    model = _model.ThreeDimensionalAutoEncoder(mask=mask)
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()
         model.to_gpu()
