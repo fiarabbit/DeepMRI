@@ -68,7 +68,7 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
         l4 = F.relu(self.bnl4(self.l4(l3)))
         l5 = F.relu(self.bnl5(self.l5(l4)))
         l6 = F.relu(self.bnl6(self.l6(l5)))
-        b6 = F.reshape(l6, l6.shape + [1, 1, 1])
+        b6 = F.reshape(l6, list(l6.shape) + [1, 1, 1])
         b5 = F.relu(self.bnd6(self.deconv6(b6)))
         b4 = F.relu(self.bnd5(self.deconv5(b5)))
         b3 = F.relu(self.bnd4(self.deconv4(b4)))
