@@ -14,7 +14,9 @@ def main():
     args = parser.parse_args()
     mask = nib.load(args.mask).get_data()
     targets = os.listdir(args.target)
-    for target in targets:
+    for i in range(len(targets)):
+        target = targets[i]
+        print("processing {}/{}".format(i, len(targets)))
         t = os.path.join(args.target, target)
         x = nib.load(t).get_data()
         x_masked = ma.masked_where(mask, x)
