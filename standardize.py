@@ -12,13 +12,16 @@ def main():
     parser.add_argument('--mask', default='/data/mask/average_optthr.nii')
     parser.add_argument('--result', default='/data2/preprocessed_data')
     args = parser.parse_args()
-    mask = np.broadcast_to(nib.load(args.mask).get_data(), [91, 109, 91, 150])
+    mask = nib.load(args.mask).get_data()
+    mask = np.reshape(mask, [1] + mask.shape)
     targets = os.listdir(args.target)
-    for i in range(len(targets)):
+    for i in range(targets):
         target = targets[i]
         print("processing {}/{}".format(i, len(targets)))
         t = os.path.join(args.target, target)
         x = nib.load(t).get_data()
+        if mask.shape != x.shape:
+            mask = np.broadcast_to(mask, x.shape)
         x_masked = ma.masked_where(mask, x)
         x_voxel \
             = x_masked - np.mean(x_masked, axis=x_masked.shape[-1])
