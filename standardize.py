@@ -19,7 +19,7 @@ def main():
         print("processing {}/{}".format(i, len(targets)))
         t = os.path.join(args.target, target)
         x = nib.load(t).get_data()
-        x_masked = ma.masked_where(mask, x)
+        x_masked = ma.masked_where(np.broadcast_to(mask, x.shape), x)
         x_voxel \
             = x_masked - np.mean(x_masked, axis=x_masked.shape[-1])
         x_standardized = (x_voxel - np.mean(x_voxel)) / np.std(x_voxel)
