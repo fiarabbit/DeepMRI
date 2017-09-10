@@ -24,7 +24,8 @@ def main():
             mask = np.broadcast_to(mask, x.shape)
         x_masked = ma.masked_where(mask, x)
         x_voxel \
-            = x_masked - np.mean(x_masked, axis=x_masked.ndim-1)
+            = x_masked - np.reshape(np.mean(x_masked, axis=x_masked.ndim-1),
+                                    list(x_masked.shape) + [1])
         x_standardized = (x_voxel - np.mean(x_voxel)) / np.std(x_voxel)
         np.savez_compressed(
             os.path.join(args.result, target), dataobj=x_standardized)
