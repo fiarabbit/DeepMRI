@@ -15,7 +15,7 @@ def main():
     mask = nib.load(args.mask).get_data()
     mask = np.reshape(mask, [1] + list(mask.shape))
     targets = os.listdir(args.target)
-    for i in range(targets):
+    for i in range(len(targets)):
         target = targets[i]
         print("processing {}/{}".format(i, len(targets)))
         t = os.path.join(args.target, target)
