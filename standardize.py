@@ -13,7 +13,7 @@ def main():
     parser.add_argument('--result', default='/data2/preprocessed_data')
     args = parser.parse_args()
     mask = nib.load(args.mask).get_data()
-    mask = np.reshape(mask, [1] + list(mask.shape))
+    mask = np.reshape(mask, list(mask.shape) + [1])
     targets = os.listdir(args.target)
     for i in range(len(targets)):
         target = targets[i]
