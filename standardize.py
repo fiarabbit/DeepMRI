@@ -5,6 +5,8 @@ import nibabel as nib
 import numpy as np
 import numpy.ma as ma
 
+import re
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -23,12 +25,16 @@ def main():
         if mask.shape != x.shape:
             mask = np.broadcast_to(mask, x.shape)
         x_masked = ma.masked_where(mask, x)
+        _x_mean = np.mean(x_masked, axis=x_masked.ndim-1)
+        x_mean = np.reshape(_x_mean, list(_x_mean.shape)+[1])
         x_voxel \
-            = x_masked - np.reshape(np.mean(x_masked, axis=x_masked.ndim-1),
-                                    list(x_masked.shape) + [1])
+            = x_masked - x_mean
         x_standardized = (x_voxel - np.mean(x_voxel)) / np.std(x_voxel)
-        np.savez_compressed(
-            os.path.join(args.result, target), dataobj=x_standardized)
+        save_name = re.sub("\.nii$", ".pickle", target)
+        print(save_name)
+        x_standardized.dump(os.path.join(args.result, save_name))
+        # np.savez_compressed(
+        #     os.path.join(args.result, target), dataobj=x_standardized)
 
 
 if __name__ == '__main__':
