@@ -40,9 +40,8 @@ class TimeSeriesAutoEncoderDataset(DatasetMixin):
                 .format(self.subjects[subject]))
         loaded_dict = np.load(filepath)
         img = loaded_dict["data"]
-        mask = loaded_dict["mask"]
         npimg = img[:, :, :, frame]
-        return npimg, mask
+        return npimg
 
     def get_subdatasets(self):
         train = []
