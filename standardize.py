@@ -25,7 +25,7 @@ def main():
         if mask.shape != x.shape:
             mask = np.broadcast_to(mask, x.shape)
         x_masked = ma.masked_where(mask, x)
-        _x_mean = np.mean(x_masked, axis=x_masked.ndim-1)
+        _x_mean = np.mean(x_masked, axis=-1)
         x_mean = np.reshape(_x_mean, list(_x_mean.shape)+[1])
         x_voxel \
             = x_masked - x_mean
@@ -34,8 +34,7 @@ def main():
         save_name = re.sub("$", ".npz", target)
         save_path = os.path.join(args.result, save_name)
         print(save_path)
-        np.savez_compressed(save_path,
-                            mask=x_standardized.mask, data=x_standardized.data)
+        np.savez_compressed(save_path, data=ma.filled(x_standardized, 0))
         # x_standardized.dump(os.path.join(args.result, save_name))
 
 
