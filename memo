@@ -7,3 +7,8 @@ if batch = 128
     lr: 20000iter
     lr: 25000iter
     lr: 30000iter
+
+all images:
+ 147 subjects * 150 frames = 22050 images
+ 1 epoch = 22050 images
+ 23.22 epoch = 512000 images = 4000 iteration
