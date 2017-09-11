@@ -39,7 +39,7 @@ class TimeSeriesAutoEncoderDataset(DatasetMixin):
             self.root, "niftiDATA_Subject{}_Condition000.nii"
                 .format(self.subjects[subject]))
         img = nib.load(filepath)
-        npimg = img[:, :, :, frame]
+        npimg = img.dataobj[:, :, :, frame]
         return npimg
 
     def get_subdatasets(self):
