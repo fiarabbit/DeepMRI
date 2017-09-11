@@ -9,7 +9,7 @@ import re
 
 class TimeSeriesAutoEncoderDataset(DatasetMixin):
     regexp = re.compile(
-        'niftiDATA_Subject(?P<sid>\d{3})_Condition(?P<cid>\d{3}).nii')
+        'niftiDATA_Subject(?P<sid>\d{3})_Condition(?P<cid>\d{3})\.nii$')
     frame_number = 150
 
     def __init__(self, root, split_inter=True, subsampling=True,
