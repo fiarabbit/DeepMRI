@@ -30,11 +30,13 @@ def main():
         x_voxel \
             = x_masked - x_mean
         x_standardized = (x_voxel - np.mean(x_voxel)) / np.std(x_voxel)
-        save_name = re.sub("\.nii$", ".pickle", target)
-        print(save_name)
-        x_standardized.dump(os.path.join(args.result, save_name))
-        # np.savez_compressed(
-        #     os.path.join(args.result, target), dataobj=x_standardized)
+        assert isinstance(x_standardized, ma.MaskedArray)
+        save_name = re.sub("$", ".npz", target)
+        save_path = os.path.join(args.result, save_name)
+        print(save_path)
+        np.savez_compressed(save_path,
+                            mask=x_standardized.mask, data=x_standardized.data)
+        # x_standardized.dump(os.path.join(args.result, save_name))
 
 
 if __name__ == '__main__':
