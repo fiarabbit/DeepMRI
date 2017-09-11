@@ -31,10 +31,10 @@ def main():
             = x_masked - x_mean
         x_standardized = (x_voxel - np.mean(x_voxel)) / np.std(x_voxel)
         assert isinstance(x_standardized, ma.MaskedArray)
-        save_name = re.sub("$", ".npy", target)
+        save_name = re.sub("$", ".npz", target)
         save_path = os.path.join(args.result, save_name)
         print(save_path)
-        np.save(save_path, ma.filled(x_standardized, 0))
+        np.savez_compressed(save_path, data=ma.filled(x_standardized, 0))
         # x_standardized.dump(os.path.join(args.result, save_name))
 
 
