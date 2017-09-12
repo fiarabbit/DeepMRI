@@ -1,5 +1,6 @@
 import argparse
 import os
+import pickle
 
 import nibabel as nib
 import numpy as np
@@ -33,10 +34,11 @@ def main():
         assert isinstance(x_standardized, ma.MaskedArray)
         x_standardized_filled = ma.filled(x_standardized, 0)
         for i in range(0, x_standardized.shape[-1]):
-            save_name = re.sub(".nii$", "_frame{}.npy".format(i), target)
+            save_name = re.sub(".nii$", "_frame{}.pickle".format(i), target)
             save_path = os.path.join(args.result, save_name)
             print(save_path)
-            np.save(save_path, x_standardized_filled[:, :, :, i])
+            t = x_standardized_filled[:, :, :, i]
+            t.dump(save_path)
         # np.savez_compressed(save_path, data=ma.filled(x_standardized, 0))
         # x_standardized.dump(os.path.join(args.result, save_name))
 
