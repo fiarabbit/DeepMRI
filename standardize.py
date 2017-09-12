@@ -12,7 +12,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--target', default='/data/timeseries')
     parser.add_argument('--mask', default='/data/mask/average_optthr.nii')
-    parser.add_argument('--result', default='/data2/preprocessed_data')
+    parser.add_argument('--result', default='/data2/msub')
     args = parser.parse_args()
     mask = nib.load(args.mask).get_data()
     mask = np.reshape(mask, list(mask.shape) + [1])
@@ -26,15 +26,18 @@ def main():
             mask = np.broadcast_to(mask, x.shape)
         x_masked = ma.masked_where(mask, x)
         _x_mean = np.mean(x_masked, axis=-1)
-        x_mean = np.reshape(_x_mean, list(_x_mean.shape)+[1])
+        x_mean = np.reshape(_x_mean, list(_x_mean.shape) + [1])
         x_voxel \
             = x_masked - x_mean
         x_standardized = (x_voxel - np.mean(x_voxel)) / np.std(x_voxel)
         assert isinstance(x_standardized, ma.MaskedArray)
-        save_name = re.sub("$", ".npz", target)
-        save_path = os.path.join(args.result, save_name)
-        print(save_path)
-        np.savez_compressed(save_path, data=ma.filled(x_standardized, 0))
+        x_standardized_filled = ma.filled(x_standardized, 0)
+        for i in range(0, x_standardized.shape[-1]):
+            save_name = re.sub(".nii$", "_frame{}.npy", target)
+            save_path = os.path.join(args.result, save_name)
+            print(save_path)
+            np.save(save_path, x_standardized_filled[:, :, :, i])
+        # np.savez_compressed(save_path, data=ma.filled(x_standardized, 0))
         # x_standardized.dump(os.path.join(args.result, save_name))
 
 
