@@ -11,7 +11,10 @@ import math
 
 class TimeSeriesAutoEncoderDataset(DatasetMixin):
     regexp = re.compile(
-        'niftiDATA_Subject(?P<sid>\d{3})_Condition(?P<cid>\d{3})_frame(?P<fid>\d)\.nii\.pickle$')
+        'niftiDATA_Subject(?P<sid>\d{3})'
+        + '_Condition(?P<cid>\d{3})'
+        + '_frame(?P<fid>\d{3})'
+        + '\.nii\.pickle$')
     frame_number = 150
 
     def __init__(self, root, split_inter=True, subsampling=True,
@@ -36,11 +39,10 @@ class TimeSeriesAutoEncoderDataset(DatasetMixin):
 
         frame = int(frame)
         filepath = path.join(
-            self.root, "niftiDATA_Subject{}_Condition000.nii.npz"
-                .format(self.subjects[subject]))
-        loaded_dict = np.load(filepath)
-        img = loaded_dict["data"]
-        npimg = img[:, :, :, frame]
+            self.root, "niftiDATA_Subject{}_Condition000_frame{}.nii.npz"
+                .format(self.subjects[subject], frame))
+        with open(filepath, 'rb') as f:
+            npimg = pickle.load(f)
         return npimg
 
     def get_subdatasets(self):
@@ -63,8 +65,8 @@ class TimeSeriesAutoEncoderDataset(DatasetMixin):
             for i in range(0, len(self)):
                 subject, frame = divmod(i, self.frame_number)
                 threshold = math.ceil(
-                        self.subject_number * train_ratio_int / ratio_sum_int
-                    )
+                    self.subject_number * train_ratio_int / ratio_sum_int
+                )
                 if subject < threshold:
                     train.append(i)
         split_at = len(train)
