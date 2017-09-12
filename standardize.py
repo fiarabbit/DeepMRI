@@ -34,7 +34,8 @@ def main():
         assert isinstance(x_standardized, ma.MaskedArray)
         x_standardized_filled = ma.filled(x_standardized, 0)
         for i in range(0, x_standardized.shape[-1]):
-            save_name = re.sub(".nii$", "_frame{}.pickle".format(i), target)
+            save_name \
+                = re.sub(".nii$", "_frame{0:03d}.pickle".format(i), target)
             save_path = os.path.join(args.result, save_name)
             print(save_path)
             t = x_standardized_filled[:, :, :, i]

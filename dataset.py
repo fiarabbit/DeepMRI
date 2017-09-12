@@ -4,13 +4,14 @@ from chainer.datasets import split_dataset
 import numpy as np
 from os import listdir
 from os import path
+import pickle
 import re
 import math
 
 
 class TimeSeriesAutoEncoderDataset(DatasetMixin):
     regexp = re.compile(
-        'niftiDATA_Subject(?P<sid>\d{3})_Condition(?P<cid>\d{3})\.nii\.npz$')
+        'niftiDATA_Subject(?P<sid>\d{3})_Condition(?P<cid>\d{3})_frame(?P<fid>\d)\.nii\.pickle$')
     frame_number = 150
 
     def __init__(self, root, split_inter=True, subsampling=True,
