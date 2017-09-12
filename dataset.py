@@ -1,7 +1,6 @@
 from chainer.dataset import DatasetMixin
 from chainer.datasets import split_dataset
 
-import nibabel as nib
 import numpy as np
 from os import listdir
 from os import path

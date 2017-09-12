@@ -60,7 +60,7 @@ print(os.getcwd())
 def main():
     """ called if __name__==='__main__' """
     parser = ArgumentParser()
-    parser.add_argument('--datasetdir', default='/data/timeseries')
+    parser.add_argument('--datasetdir', default='/data/mean_sub')
     parser.add_argument('--split',
                         choices=['inter', 'intra'], default='inter')
     parser.add_argument('--split_ratio', type=tuple, default=(4, 1))
