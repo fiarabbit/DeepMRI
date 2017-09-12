@@ -1,7 +1,6 @@
 from chainer.dataset import DatasetMixin
 from chainer.datasets import split_dataset
 
-import numpy as np
 from os import listdir
 from os import path
 import pickle
@@ -9,20 +8,27 @@ import re
 import math
 
 
+def unique(seq):
+    seen = set()
+    seen_add = seen.add
+    return [x for x in seq if x not in seen and not seen_add(x)]
+
+
 class TimeSeriesAutoEncoderDataset(DatasetMixin):
     regexp = re.compile(
         'niftiDATA_Subject(?P<sid>\d{3})'
         + '_Condition(?P<cid>\d{3})'
         + '_frame(?P<fid>\d{3})'
-        + '\.nii\.pickle$')
+        + '\.pickle$')
     frame_number = 150
 
     def __init__(self, root, split_inter=True, subsampling=True,
                  split_ratio=(4, 1)):
         self.root = root
         self.files = listdir(self.root)
-        self.subjects = [self.regexp.match(file).group('sid') for file in
-                         self.files]
+        self.subjects = unique(
+            [self.regexp.match(file).group('sid') for file in
+             self.files])
         self.subject_number = len(self.subjects)
         self.split_inter = split_inter
         self.subsampling = subsampling
