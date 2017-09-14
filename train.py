@@ -87,11 +87,18 @@ def main():
 
     # train_dataset = _dataset.TimeSeriesAutoEncoderDataset(args.traindir)
     # test_dataset = _dataset.TimeSeriesAutoEncoderDataset(args.testdir)
-    train_iter = iterators.MultiprocessIterator(dataset=train_dataset,
+    # train_iter = iterators.MultiprocessIterator(dataset=train_dataset,
+    #                                             batch_size=args.batchsize,
+    #                                             repeat=True,
+    #                                             shuffle=True)
+    # test_iter = iterators.MultiprocessIterator(dataset=test_dataset,
+    #                                            batch_size=args.testBatchsize,
+    #                                            repeat=False, shuffle=False)
+    train_iter = iterators.SerialIterator(dataset=train_dataset,
                                                 batch_size=args.batchsize,
                                                 repeat=True,
                                                 shuffle=True)
-    test_iter = iterators.MultiprocessIterator(dataset=test_dataset,
+    test_iter = iterators.SerialIterator(dataset=test_dataset,
                                                batch_size=args.testBatchsize,
                                                repeat=False, shuffle=False)
     optimizer = optimizers.MomentumSGD(lr=0.01, momentum=0.9)
