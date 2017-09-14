@@ -16,6 +16,8 @@ def main():
     parser.add_argument('--result', default='/data2/msub')
     args = parser.parse_args()
     mask = nib.load(args.mask).get_data()
+    assert isinstance(mask, np.ndarray)
+    mask = (mask != 0)
     mask = np.reshape(mask, list(mask.shape) + [1])
     targets = os.listdir(args.target)
     for i in range(len(targets)):
