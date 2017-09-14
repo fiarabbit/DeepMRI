@@ -10,6 +10,7 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
     def __init__(self, mask):
         assert tuple(mask.shape) == self.in_size
         super().__init__()
+        self.mask = chainer.Variable(mask)
         with self.init_scope():
             self.conv1 = L.ConvolutionND(3, 1, 3, (7, 7, 7), 2, 0)
             self.bnc1 = L.BatchNormalization(3)
@@ -47,7 +48,14 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
             self.bnd2 = L.BatchNormalization(3)
             self.deconv1 = L.DeconvolutionND(3, 3, 1, (7, 7, 7), 2, 0)
             self.bnd1 = L.BatchNormalization(1)
-            self.mask = chainer.Parameter(mask)
+
+    def to_cpu(self):
+        super().to_cpu()
+        self.mask.to_cpu()
+
+    def to_gpu(self, device=None):
+        super().to_gpu(device)
+        self.mask.to_gpu(device)
 
     def calc(self, x):
         _shape = list(x.shape)
