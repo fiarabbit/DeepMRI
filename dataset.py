@@ -6,6 +6,7 @@ from os import path
 import pickle
 import re
 import math
+import numpy as np
 
 
 def unique(seq):
@@ -50,6 +51,7 @@ class TimeSeriesAutoEncoderDataset(DatasetMixin):
                        .format(frame))
         with open(filepath, 'rb') as f:
             npimg = pickle.load(f)
+        npimg = np.array(npimg, dtype=np.float32)
         return npimg
 
     def get_subdatasets(self):
