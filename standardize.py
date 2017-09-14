@@ -40,7 +40,7 @@ def main():
                 = re.sub(".nii$", "_frame{0:03d}.pickle".format(i), target)
             save_path = os.path.join(args.result, save_name)
             print(save_path)
-            t = x_standardized_filled[:, :, :, i]
+            t = np.array(x_standardized_filled[:, :, :, i], dtype=np.float32)
             t.dump(save_path)
         # np.savez_compressed(save_path, data=ma.filled(x_standardized, 0))
         # x_standardized.dump(os.path.join(args.result, save_name))
