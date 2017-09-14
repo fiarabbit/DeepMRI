@@ -87,19 +87,19 @@ def main():
 
     # train_dataset = _dataset.TimeSeriesAutoEncoderDataset(args.traindir)
     # test_dataset = _dataset.TimeSeriesAutoEncoderDataset(args.testdir)
-    train_iterator = iterators.SerialIterator(dataset=train_dataset,
-                                              batch_size=args.batchsize,
-                                              repeat=True,
-                                              shuffle=True)
-    test_iterator = iterators.SerialIterator(dataset=test_dataset,
-                                             batch_size=args.testBatchsize,
-                                             repeat=False, shuffle=False)
+    train_iter = iterators.MultiprocessIterator(dataset=train_dataset,
+                                                batch_size=args.batchsize,
+                                                repeat=True,
+                                                shuffle=True)
+    test_iter = iterators.MultiprocessIterator(dataset=test_dataset,
+                                               batch_size=args.testBatchsize,
+                                               repeat=False, shuffle=False)
     optimizer = optimizers.MomentumSGD(lr=0.01, momentum=0.9)
     # optimizer = optimizers.Adam()
     optimizer.setup(model)
     optimizer.add_hook(WeightDecay(0.0005))
 
-    updater = updaters.StandardUpdater(iterator=train_iterator,
+    updater = updaters.StandardUpdater(iterator=train_iter,
                                        optimizer=optimizer,
                                        device=args.gpu)
     trainer = chainer.training.Trainer(updater=updater,
@@ -117,7 +117,7 @@ def main():
     )
     trainer.extend(extensions.LogReport(trigger=log_interval))
     trainer.extend(extensions.observe_lr(), trigger=log_interval)
-    evaluator = extensions.Evaluator(test_iterator, model, device=args.gpu)
+    evaluator = extensions.Evaluator(test_iter, model, device=args.gpu)
     trainer.extend(evaluator, trigger=log_interval)
     trainer.extend(extensions.PrintReport(
         ['epoch', 'iteration', 'main/loss', 'validation/main/loss', 'lr']),
