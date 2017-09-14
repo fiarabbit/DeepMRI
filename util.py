@@ -30,13 +30,35 @@ def anim():
         plt.pause(0.5)
 
 
+def hoge():
+    # x = nib.load('niftiDATA_Subject001_Condition000.nii').dataobj[:,:,45,0]
+    # x = np.load('hoge.npz')['x'].reshape((91,109,91))[:,:,45]
+    import pickle
+    with open('niftiDATA_Subject001_Condition000_frame000.pickle', 'rb') as f:
+        img = pickle.load(f)
+    x = img[:,:,45]
+    y = np.load('hoge.npz')['y2'].reshape((91,109,91))[:,:,45]
+    plt.subplot(131)
+    ax_x = plt.imshow(x)
+    ax_x.set_clim(0,1)
+    plt.subplot(132)
+    ax_y = plt.imshow(y)
+    ax_y.set_clim(0,1)
+    plt.subplot(133)
+    ax_scale = plt.imshow(x*y)
+    ax_scale.set_clim(0,1)
+    plt.show()
+
 def mask():
-    # h = nib.load('average_COBRE148subjects.nii')
-    h = nib.load('subject06204_swaurest.nii')
+    h = nib.load('niftiDATA_Subject001_Condition000.nii')
+    # h = nib.load('average_optthr.nii')
+    # h = nib.load('subject06204_swaurest.nii')
     d = h.dataobj
     frame = 0
     f = d[:, :, :, frame]
-    # f = d
+    # f = np.load('hoge.npz')['x']*np.load('hoge.npz')['y2']
+    # f = np.load('hoge.npz')['y2']
+    # f = f.reshape((91, 109, 91))
     class AnimationFunc:
         s = 0
         im = None
@@ -48,12 +70,14 @@ def mask():
             print(img_2d.max())
             if self.s == 0:
                 self.im = plt.imshow(img_2d)
-                self.im.set_clim(0,2000)
+                self.im.set_clim(0,1)
             elif self.s > 0:
                 self.im.set_data(img_2d)
             plt.pause(0.1)
             self.s += 1
             print(self.s)
+            if self.s == self.img_3d.shape[2]:
+                raise StopIteration
     a = AnimationFunc(f)
     while True:
         a()
@@ -118,4 +142,4 @@ def plotMeanHist():
     plt.show()
 
 if __name__ == '__main__':
-    mask()
+    hoge()
