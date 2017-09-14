@@ -45,7 +45,7 @@ class TimeSeriesAutoEncoderDataset(DatasetMixin):
 
         frame = int(frame)
         filepath = path.join(
-            self.root, "niftiDATA_Subject{}_Condition000_frame{}.nii.pickle"
+            self.root, "niftiDATA_Subject{}_Condition000_frame{}.pickle"
                 .format(self.subjects[subject], frame))
         with open(filepath, 'rb') as f:
             npimg = pickle.load(f)
