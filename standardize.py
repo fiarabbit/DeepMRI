@@ -17,10 +17,12 @@ def main():
     args = parser.parse_args()
     mask = nib.load(args.mask).get_data()
     assert isinstance(mask, np.ndarray)
-    print(np.count_nonzero(mask))
+    _mask = (mask == 0)
+    print(np.sum(_mask))
     threshold = 0.001
-    mask = (mask < threshold)
-    print(np.sum(mask))
+    __mask = (mask < threshold)
+    print(np.sum(__mask))
+    mask = __mask
     mask = np.reshape(mask, list(mask.shape) + [1])
     targets = os.listdir(args.target)
     for i in range(len(targets)):
