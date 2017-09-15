@@ -120,7 +120,8 @@ def main():
     evaluator = extensions.Evaluator(test_iterator, model, device=args.gpu)
     trainer.extend(evaluator, trigger=log_interval)
     trainer.extend(extensions.PrintReport(
-        ['epoch', 'iteration', 'main/loss', 'validation/main/loss', 'lr']),
+        ['epoch', 'iteration', 'main/loss', 'validation/main/loss', 'lr',
+         'elapsed_time']),
         trigger=log_interval
     )
     if args.resumeFrom is not None:
