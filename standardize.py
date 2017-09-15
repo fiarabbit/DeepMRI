@@ -18,7 +18,9 @@ def main():
     mask = nib.load(args.mask).get_data()
     assert isinstance(mask, np.ndarray)
     print(np.count_nonzero(mask))
-    mask = (mask == 0)
+    threshold = 0.001
+    mask = (mask < threshold)
+    print(np.sum(mask))
     mask = np.reshape(mask, list(mask.shape) + [1])
     targets = os.listdir(args.target)
     for i in range(len(targets)):
