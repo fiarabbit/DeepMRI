@@ -31,7 +31,7 @@ def main():
     mask = np.array(nib.load(args.mask).get_data(), dtype=np.float32)
     model = _model.ThreeDimensionalAutoEncoder(mask)
 
-    chainer.serializers.load_npz(args.model, model)
+    chainer.serializers.load_npz(args.model[0], model)
 
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()
