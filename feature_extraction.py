@@ -11,7 +11,7 @@ from argparse import ArgumentParser
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument('--gpu', default=-1)
+    parser.add_argument('--gpu', default=-1, type=int)
     parser.add_argument('--datasetdir', default='/data/timeseries')
     parser.add_argument('--testBatchsize', default=64)
     parser.add_argument('--model', nargs=1)
