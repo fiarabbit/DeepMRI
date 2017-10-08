@@ -57,6 +57,23 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
         super().to_gpu(device)
         self.mask.to_gpu(device)
 
+    def extract(self, x):
+        _shape = list(x.shape)
+        assert tuple(_shape[1:]) == self.in_size
+
+        _shape.insert(1, 1) # specify # of first channel
+
+        c0 = F.reshape(x, tuple(_shape))
+        c1 = F.relu(self.bnc1(self.conv1(c0)))
+        c2 = F.relu(self.bnc2(self.conv2(c1)))
+        c3 = F.relu(self.bnc3(self.conv3(c2)))
+        c4 = F.relu(self.bnc4(self.conv4(c3)))
+        c5 = F.relu(self.bnc5(self.conv5(c4)))
+        c6 = F.relu(self.bnc6(self.conv6(c5)))
+        l1 = F.relu(self.bnl1(self.l1(c6)))
+        l2 = F.relu(self.bnl2(self.l2(l1)))
+        return self.l3(l2)
+
     def calc(self, x):
         _shape = list(x.shape)
         assert tuple(_shape[1:]) == self.in_size
