@@ -36,7 +36,9 @@ def main():
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()
         model.to_gpu()
-    converter = chainer.dataset.convert.concat_examples
+
+    def converter(_batch):
+        return chainer.dataset.concat_examples(_batch, device=args.gpu)
 
     stack = chainer.cuda.to_cpu(model.extract(converter(next(test_itr))).data)
 
