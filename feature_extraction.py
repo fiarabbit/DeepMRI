@@ -48,7 +48,7 @@ def main():
     while True:
         try:
             start_idx = i * args.testBatchsize
-            end_idx = np.min([i * (args.testBatchsize + 1), len(test_dataset)])
+            end_idx = np.min([(i + 1) * args.testBatchsize, len(test_dataset)])
             print("{}...{}/{}".format(start_idx, end_idx, len(test_dataset)))
             _batch = next(test_itr)
             batch = converter(_batch)
