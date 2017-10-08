@@ -53,6 +53,8 @@ def main():
             _batch = next(test_itr)
             batch = converter(_batch)
             feature = chainer.cuda.to_cpu(model.extract(batch).data)
+            print(feature.shape)
+            print(stack[start_idx:end_idx, :].shape)
             stack[start_idx:end_idx, :] = feature
             i += 1
         except StopIteration:
