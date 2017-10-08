@@ -41,7 +41,8 @@ def main():
         return chainer.dataset.concat_examples(_batch, device=args.gpu)
 
     tmp = chainer.cuda.to_cpu(model.extract(converter(next(test_itr))).data)
-    stack = np.zeros([len(test_dataset)] + list(tmp.shape[1:]))
+    stack = np.zeros([len(test_dataset)] + list(tmp.shape[1:]),
+                     dtype=np.float32)
     test_itr.reset()
 
     i = 0
