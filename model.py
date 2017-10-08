@@ -61,6 +61,8 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
         _shape = list(x.shape)
         assert tuple(_shape[1:]) == self.in_size
 
+        _shape.insert(1, 1)  # specify # of first channel
+
         c0 = F.reshape(x, tuple(_shape))
         c1 = F.relu(self.bnc1(self.conv1(c0)))
         c2 = F.relu(self.bnc2(self.conv2(c1)))
