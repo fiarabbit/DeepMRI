@@ -40,14 +40,16 @@ def main():
     def converter(_batch):
         return chainer.dataset.concat_examples(_batch, device=args.gpu)
 
+    i = 0
     stack = chainer.cuda.to_cpu(model.extract(converter(next(test_itr))).data)
-
     while True:
         try:
+            print("{}/{}".format(i*args.testBatchsize, len(test_dataset)))
             _batch = next(test_itr)
             batch = converter(_batch)
             feature = chainer.cuda.to_cpu(model.extract(batch).data)
             stack = np.concatenate((stack, feature), 0)
+            i += 1
         except StopIteration:
             break
 
