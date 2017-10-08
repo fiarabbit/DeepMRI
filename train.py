@@ -61,8 +61,7 @@ def main():
     """ called if __name__==='__main__' """
     parser = ArgumentParser()
     parser.add_argument('--datasetdir', default='/data/msub')
-    parser.add_argument('--split',
-                        choices=['inter', 'intra'], default='inter')
+    parser.add_argument('--split_inter', type=bool, default=True)
     parser.add_argument('--split_ratio', type=tuple, default=(4, 1))
     # parser.add_argument('--traindir', default='./data/timeseries/train')
     # parser.add_argument('--testdir', default='./data/timeseries/test')
@@ -82,11 +81,9 @@ def main():
         model.to_gpu()
 
     all_dataset = _dataset.TimeSeriesAutoEncoderDataset(args.datasetdir,
-                                                        split_inter=args.split)
+                                                        split_inter=args.split_inter)
     train_dataset, test_dataset = all_dataset.get_subdatasets()
 
-    # train_dataset = _dataset.TimeSeriesAutoEncoderDataset(args.traindir)
-    # test_dataset = _dataset.TimeSeriesAutoEncoderDataset(args.testdir)
     train_iter = iterators.MultiprocessIterator(dataset=train_dataset,
                                                 batch_size=args.batchsize,
                                                 repeat=True,
