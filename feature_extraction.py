@@ -16,13 +16,12 @@ def main():
     parser.add_argument('--testBatchsize', default=64)
     parser.add_argument('--model', nargs=1)
     parser.add_argument('--result', default='feature')
-    parser.add_argument('--split',
-                        choices=['inter', 'intra'], default='inter')
+    parser.add_argument('--split_inter', default=True)
     parser.add_argument('--mask', default='/data/mask/average_optthr.nii')
     args = parser.parse_args()
 
     all_dataset = _dataset.TimeSeriesAutoEncoderDataset(args.datasetdir,
-                                                        split_inter=args.split)
+                                                        split_inter=args.split_inter)
     train_dataset, test_dataset = all_dataset.get_subdatasets()
     test_itr = iterators.SerialIterator(dataset=test_dataset,
                                         batch_size=args.testBatchsize,

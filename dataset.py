@@ -29,10 +29,7 @@ class TimeSeriesAutoEncoderDataset(DatasetMixin):
         return self.subject_number * self.frame_number
 
     def get_example(self, i):
-        if not self.split_inter:
-            frame, subject = divmod(i, self.subject_number)
-        else:
-            subject, frame = divmod(i, self.frame_number)
+        subject, frame = divmod(i, self.frame_number)
 
         frame = int(frame)
         filepath = path.join(
@@ -46,9 +43,16 @@ class TimeSeriesAutoEncoderDataset(DatasetMixin):
         train = []
         train_ratio_int = self.split_ratio_tuple[0]
         ratio_sum_int = sum(self.split_ratio_tuple)
-        if not self.split_inter:
-            for i in range(0, len(self)):
-                frame, subject = divmod(i, self.subject_number)
+
+        for i in range(0, len(self)):
+            subject, frame = divmod(i, self.frame_number)
+            if self.split_inter:
+                threshold = math.ceil(
+                    self.subject_number * train_ratio_int / ratio_sum_int
+                )
+                if subject < threshold:
+                    train.append(i)
+            else:
                 if self.subsampling:
                     if (frame % ratio_sum_int) < train_ratio_int:
                         train.append(i)
@@ -58,17 +62,10 @@ class TimeSeriesAutoEncoderDataset(DatasetMixin):
                     )
                     if frame < threshold:
                         train.append(i)
-        else:
-            for i in range(0, len(self)):
-                subject, frame = divmod(i, self.frame_number)
-                threshold = math.ceil(
-                        self.subject_number * train_ratio_int / ratio_sum_int
-                    )
-                if subject < threshold:
-                    train.append(i)
+
         split_at = len(train)
         assert (split_at != 0) & (split_at != len(self))
-        valid = set(range(len(self))) - set(train)
-        train.extend(valid)
+        test = set(range(len(self))) - set(train)
+        train.extend(test)
 
         return split_dataset(self, split_at, train)
