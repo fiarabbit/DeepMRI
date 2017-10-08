@@ -41,7 +41,7 @@ def main():
         return chainer.dataset.concat_examples(_batch, device=args.gpu)
 
     tmp = chainer.cuda.to_cpu(model.extract(converter(next(test_itr))).data)
-    stack = np.zeros([len(test_dataset)].extend(tmp.shape[1:]))
+    stack = np.zeros([len(test_dataset)] + list(tmp.shape[1:]))
     test_itr.reset()
 
     i = 0
@@ -53,8 +53,6 @@ def main():
             _batch = next(test_itr)
             batch = converter(_batch)
             feature = chainer.cuda.to_cpu(model.extract(batch).data)
-            print(feature.shape)
-            print(stack[start_idx:end_idx, :].shape)
             stack[start_idx:end_idx, :] = feature
             i += 1
         except StopIteration:
