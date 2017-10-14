@@ -50,7 +50,7 @@ def main():
         batch = chainer.cuda.to_gpu(batch, args.gpu)
     x = chainer.Variable(batch)
     feature = model.extract(x)
-    _feature = chainer.functions.get_item(feature, [..., 0])
+    _feature = chainer.functions.sum(chainer.functions.get_item(feature, [..., 0]))
     _feature.backward()
     filename = 'grad.npz'
     np.savez_compressed(filename, grad=chainer.cuda.to_cpu(x.grad))
