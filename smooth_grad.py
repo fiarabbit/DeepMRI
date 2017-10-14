@@ -29,7 +29,7 @@ def main():
                                         repeat=False, shuffle=False)
     target_img = next(test_itr)
     for i in range(0, args.testImageIndex):
-        target_img = next(test_itr)
+        target_img = next(test_itr)[0]
 
     # preprocessing
     batch = np.tile(target_img,
