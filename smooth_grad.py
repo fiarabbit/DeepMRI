@@ -28,11 +28,12 @@ def main():
                                         batch_size=1,
                                         repeat=False, shuffle=False)
     target_img = next(test_itr)
-    for i in range(0, args.testImageIndex+1):
+    for i in range(0, args.testImageIndex + 1):
         target_img = next(test_itr)[0]
 
     # preprocessing
-    batch = np.broadcast_to(target_img, [args.testBatchsize] + target_img.shape)
+    batch = np.broadcast_to(target_img,
+                            [args.testBatchsize] + list(target_img.shape))
     noise_level = 0.2
     sigma = noise_level / (np.max(target_img) - np.min(target_img))
     for i in range(0, args.testBatchsize):
@@ -53,6 +54,7 @@ def main():
     _feature.backward()
     filename = 'grad.npz'
     np.savez_compressed(filename, grad=chainer.cuda.to_cpu(x.grad))
+
 
 if __name__ == '__main__':
     main()
