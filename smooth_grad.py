@@ -37,7 +37,7 @@ def main():
     noise_level = 0.2
     sigma = noise_level / (np.max(target_img) - np.min(target_img))
     for i in range(0, args.testBatchsize):
-        batch[i, :] += sigma * np.random.randn(batch[i, :].shape)
+        batch[i, :] += sigma * np.random.randn(*batch[i, :].shape)
 
     mask = np.array(nib.load(args.mask).get_data(), dtype=np.float32)
     model = _model.ThreeDimensionalAutoEncoder(mask)
