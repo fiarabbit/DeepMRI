@@ -32,8 +32,7 @@ def main():
         target_img = next(test_itr)[0]
 
     # preprocessing
-    batch = np.tile(target_img,
-                    [args.testBatchsize] + [1] * (target_img.ndim - 1))
+    batch = np.broadcast_to(target_img, [args.testBatchsize] + target_img.shape)
     noise_level = 0.2
     sigma = noise_level / (np.max(target_img) - np.min(target_img))
     for i in range(0, args.testBatchsize):
