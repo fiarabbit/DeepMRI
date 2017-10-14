@@ -59,7 +59,10 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
 
     def extract(self, x):
         _shape = list(x.shape)
-        assert tuple(_shape[1:]) == self.in_size
+        try:
+            assert tuple(_shape[1:]) == self.in_size
+        except AssertionError:
+            print("expected:{}, actual:{}".format(self.in_size, tuple(_shape[1:])))
 
         _shape.insert(1, 1)  # specify # of first channel
 
@@ -76,7 +79,10 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
 
     def calc(self, x):
         _shape = list(x.shape)
-        assert tuple(_shape[1:]) == self.in_size
+        try:
+            assert tuple(_shape[1:]) == self.in_size
+        except AssertionError:
+            print("expected:{}, actual:{}".format(self.in_size, tuple(_shape[1:])))
 
         _shape.insert(1, 1)  # specify # of first channel
 
