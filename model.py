@@ -63,6 +63,7 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
             assert tuple(_shape[1:]) == self.in_size
         except AssertionError:
             print("expected:{}, actual:{}".format(self.in_size, tuple(_shape[1:])))
+            exit()
 
         _shape.insert(1, 1)  # specify # of first channel
 
@@ -83,6 +84,7 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
             assert tuple(_shape[1:]) == self.in_size
         except AssertionError:
             print("expected:{}, actual:{}".format(self.in_size, tuple(_shape[1:])))
+            exit()
 
         _shape.insert(1, 1)  # specify # of first channel
 
