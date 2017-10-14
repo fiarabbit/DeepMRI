@@ -48,7 +48,7 @@ def main():
         chainer.cuda.get_device_from_id(args.gpu).use()
         model.to_gpu()
         batch = chainer.cuda.to_gpu(batch, args.gpu)
-    x = chainer.Variable(batch, require_grad=True)
+    x = chainer.Variable(batch)
     feature = model.extract(x)
     _feature = chainer.functions.get_item(feature, [0])
     _feature.backward()
