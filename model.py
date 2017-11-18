@@ -45,5 +45,5 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
             * y_masked.data.ravel().size \
             / (self.mask.data.sum() * batch_size)
         chainer.report({'loss': loss}, self)
-        print("loss: ".format(loss))
+        print("loss: {}".format(loss))
         return loss
