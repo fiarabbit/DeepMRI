@@ -34,11 +34,9 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
             exit()
         xp = chainer.cuda.get_array_module(x)
         z = chainer.Variable(xp.zeros(_shape, dtype=x.dtype))
-        print("calc finished")
         return x * z
 
     def __call__(self, x):
-        print("__call__ was called")
         x_masked = F.scale(x, self.mask, axis=1)
         y = self.calc(x_masked)
         y_masked = F.scale(y, self.mask, axis=1)
@@ -46,6 +44,6 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
         loss = F.mean_absolute_error(y_masked, x_masked) \
             * y_masked.data.ravel().size \
             / (self.mask.data.sum() * batch_size)
-        print("loss was computed")
         chainer.report({'loss': loss}, self)
+        print("loss: ".format(loss))
         return loss
