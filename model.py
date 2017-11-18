@@ -21,12 +21,6 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
             self.conv3 = L.ConvolutionND(3, 10, 35, (4, 4, 4), 2, 0)
             # (35, 9, 11, 9) = 31185 = 32.5%
             self.bnc3 = L.BatchNormalization(35)
-            self.conv4 = L.ConvolutionND(3, 35, 125, (3, 3, 3), 2, 0)
-            # (125, 4, 5, 4) = 10000 = 32%
-            self.bnc4 = L.BatchNormalization(125)
-            self.deconv4 = L.DeconvolutionND(3, 125, 35, (3, 3, 3), 2, 0)
-            # (35, 9, 11, 9)
-            self.bnd4 = L.BatchNormalization(35)
             self.deconv3 = L.DeconvolutionND(3, 35, 10, (4, 4, 4), 2, 0)
             # (10, 20, 24, 20)
             self.bnd3 = L.BatchNormalization(10)
@@ -58,8 +52,7 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
         c0 = F.reshape(x, tuple(_shape))
         c1 = F.relu(self.bnc1(self.conv1(c0)))
         c2 = F.relu(self.bnc2(self.conv2(c1)))
-        c3 = F.relu(self.bnc3(self.conv3(c2)))
-        return self.conv4(c3)
+        return self.conv3(c2)
 
     def calc(self, x):
         _shape = list(x.shape)
@@ -75,9 +68,7 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
         c1 = F.relu(self.bnc1(self.conv1(c0)))
         c2 = F.relu(self.bnc2(self.conv2(c1)))
         c3 = F.relu(self.bnc3(self.conv3(c2)))
-        c4 = F.relu(self.bnc4(self.conv4(c3)))
-        b3 = F.relu(self.bnd4(self.deconv4(c4)))
-        b2 = F.relu(self.bnd3(self.deconv3(b3)))
+        b2 = F.relu(self.bnd3(self.deconv3(c3)))
         b1 = F.relu(self.bnd2(self.deconv2(b2)))
         y = F.relu(self.bnd1(self.deconv1(b1)))
 
