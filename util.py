@@ -11,6 +11,10 @@ import time
 
 import matplotlib.animation as ani
 
+def calcoutpsize(insize, kernel, stride, padding):
+    return (input+2*padding-kernel)/stride+1
+
+
 def anim():
     x = np.arange(6)
     y = np.arange(5)
