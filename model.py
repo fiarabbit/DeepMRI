@@ -23,7 +23,7 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
     def extract(self, x):
         _shape = list(x.shape)
         xp = chainer.cuda.get_array_module(x)
-        return chainer.Variable(xp.zeros(_shape[0]))
+        return chainer.Variable(xp.zeros(_shape[0]), dtype=x.dtype)
 
     def calc(self, x):
         _shape = list(x.shape)
@@ -33,7 +33,7 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
             print("expected:{}, actual:{}".format(self.in_size, tuple(_shape[1:])))
             exit()
         xp = chainer.cuda.get_array_module(x)
-        return chainer.Variable(xp.zeros(_shape))
+        return chainer.Variable(xp.zeros(_shape), dtype=x.dtype)
 
     def __call__(self, x):
         x_masked = F.scale(x, self.mask, axis=1)
