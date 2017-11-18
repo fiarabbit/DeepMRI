@@ -53,6 +53,7 @@ import model as _model
 import dataset as _dataset
 
 import os
+import warnings
 
 print(os.getcwd())
 
@@ -75,6 +76,13 @@ def main():
     args = parser.parse_args()
 
     mask = np.array(nib.load(args.mask).get_data(), dtype=np.float32)
+    try:
+        assert mask == mask[mask.nonzero()]
+    except AssertionError:
+        warnings.warn("Non-bool mask Warning")
+        print("converting to boolean...")
+        mask = mask.nonzero().astype(np.float32)
+
     model = _model.ThreeDimensionalAutoEncoder(mask=mask)
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()

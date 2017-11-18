@@ -120,5 +120,7 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
         y_masked = F.scale(y, self.mask, axis=1)
         loss = F.mean_absolute_error(y_masked, x_masked) \
             * y_masked.data.ravel().size / self.mask.data.sum()
+        print(y_masked.data.ravel().size)
+        print(self.mask.data.sum())
         chainer.report({'loss': loss}, self)
         return loss

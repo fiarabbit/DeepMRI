@@ -72,7 +72,7 @@ def PCA():
     plt.show()
 
 
-def plotTimeseries():
+def plotTimeseriesInterSubject():
     global frames, dims, subjects
     data = loadData()
 
@@ -90,6 +90,24 @@ def plotTimeseries():
     plt.ylabel("feature")
     plt.show()
 
+def plotTimeSeriesIntraSubject():
+    global frames, dims, subjects
+    data = loadData()
+    fig, ax = plt.subplots()
+
+    t = range(0, frames)
+    subject = 0
+    for feature_idx in range(0,20):
+        frame_slice = slice(subject * frames, (subject + 1) * frames, None)
+        y = data[frame_slice, feature_idx]
+        ax.plot(t, y, label="feature{:02d}".format(feature_idx))
+
+    # plt.legend()
+    plt.xlabel("time")
+    plt.ylabel("feature")
+    plt.show()
+plotTimeSeriesIntraSubject()
+
 
 def GPLVM():
     global latent_dim, data, kernel, model
@@ -100,3 +118,32 @@ def GPLVM():
     print(kernel)
     model = gp.models.GPLVM(data, latent_dim, kernel=kernel)
     model.optimize(messages=True, max_iters=5e4, ipython_notebook=__IPYTHON__)
+
+def GPLVM_next():
+    global frames, dims, subjects
+    x = np.load('feature_GPLVM.npz')['feature']
+    assert x.shape == (4350, 2)
+
+    fig, axes = plt.subplots(1, 2)
+    ax = axes[0]
+    # for subject in range(0, subjects):
+    for subject in range(0, 5):
+        s = slice(subject * frames, (subject + 1) * frames, None)
+        y_1 = x[s, 0]
+        y_2 = x[s, 1]
+        ax.scatter(y_1, y_2)
+    ax.set_xlabel("1st component")
+    ax.set_ylabel("2nd component")
+    ax.set_title("subject 0-5")
+    ax = axes[1]
+    # for frame in range(0, frames):
+    for frame in range(0, 5):
+        s = slice(frame, dims[0], frames)
+        y_1 = x[s, 0]
+        y_2 = x[s, 1]
+        ax.scatter(y_1, y_2)
+    ax.set_xlabel("1st component")
+    ax.set_ylabel("2nd component")
+    ax.set_title("frame 0-5")
+    plt.show()
+
