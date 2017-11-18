@@ -5,7 +5,7 @@ import chainer.links as L
 
 
 class ThreeDimensionalAutoEncoder(chainer.Chain):
-    in_size = (91, 109, 91)
+    in_size = (91, 109, 91) # = 902629
 
     def __init__(self, mask):
         assert tuple(mask.shape) == self.in_size
@@ -13,16 +13,16 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
         self.mask = chainer.Variable(mask)
         with self.init_scope():
             self.conv1 = L.ConvolutionND(3, 1, 3, (7, 7, 7), 2, 0)
-            # (3, 43, 52, 32)
+            # (3, 43, 52, 43) = 288444 = 32%
             self.bnc1 = L.BatchNormalization(3)
             self.conv2 = L.ConvolutionND(3, 3, 10, (5, 6, 5), 2, 0)
-            # (10, 20, 24, 20)
+            # (10, 20, 24, 20) = 96000 = 33%
             self.bnc2 = L.BatchNormalization(10)
             self.conv3 = L.ConvolutionND(3, 10, 35, (4, 4, 4), 2, 0)
-            # (35, 9, 11, 9)
+            # (35, 9, 11, 9) = 31185 = 32.5%
             self.bnc3 = L.BatchNormalization(35)
             self.conv4 = L.ConvolutionND(3, 35, 125, (3, 3, 3), 2, 0)
-            # (125, 4, 5, 4)
+            # (125, 4, 5, 4) = 10000 = 32%
             self.bnc4 = L.BatchNormalization(125)
             self.conv5 = L.ConvolutionND(3, 125, 270, (3, 3, 3), 1, 0)
             # (270, 2, 3, 2)
@@ -112,18 +112,7 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
         c2 = F.relu(self.bnc2(self.conv2(c1)))
         c3 = F.relu(self.bnc3(self.conv3(c2)))
         c4 = F.relu(self.bnc4(self.conv4(c3)))
-        c5 = F.relu(self.bnc5(self.conv5(c4)))
-        c6 = F.relu(self.bnc6(self.conv6(c5)))
-        l1 = F.relu(self.bnl1(self.l1(c6)))
-        l2 = F.relu(self.bnl2(self.l2(l1)))
-        l3 = F.relu(self.bnl3(self.l3(l2)))
-        l4 = F.relu(self.bnl4(self.l4(l3)))
-        l5 = F.relu(self.bnl5(self.l5(l4)))
-        l6 = F.relu(self.bnl6(self.l6(l5)))
-        b6 = F.reshape(l6, list(l6.shape) + [1, 1, 1])
-        b5 = F.relu(self.bnd6(self.deconv6(b6)))
-        b4 = F.relu(self.bnd5(self.deconv5(b5)))
-        b3 = F.relu(self.bnd4(self.deconv4(b4)))
+        b3 = F.relu(self.bnd4(self.deconv4(c4)))
         b2 = F.relu(self.bnd3(self.deconv3(b3)))
         b1 = F.relu(self.bnd2(self.deconv2(b2)))
         y = F.relu(self.bnd1(self.deconv1(b1)))
