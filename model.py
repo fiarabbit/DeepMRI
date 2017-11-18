@@ -21,10 +21,9 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
         self.mask.to_gpu(device)
 
     def extract(self, x):
-        print(x.dtype)
         _shape = list(x.shape)
         xp = chainer.cuda.get_array_module(x)
-        return chainer.Variable(xp.zeros(_shape[0]), dtype=x.dtype)
+        return chainer.Variable(xp.zeros(_shape[0], dtype=x.dtype))
 
     def calc(self, x):
         _shape = list(x.shape)
