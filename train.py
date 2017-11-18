@@ -121,7 +121,7 @@ def main():
                                        device=args.gpu)
     trainer = chainer.training.Trainer(updater=updater,
                                        stop_trigger=(30000, 'iteration'),
-                                       out=args.out)
+                                       out=args.output)
     model_interval = (100, 'iteration')
     snapshot_interval = (1000, 'iteration')
     log_interval = (10, 'iteration')
