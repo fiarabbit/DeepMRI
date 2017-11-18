@@ -81,7 +81,9 @@ def main():
     except AssertionError:
         warnings.warn("Non-bool mask Warning")
         print("converting to boolean...")
-        mask = mask.nonzero().astype(np.float32)
+        mask[mask.nonzero] = 1
+        mask = mask.astype(np.float32)
+        assert mask == mask[mask.nonzero()]
 
     model = _model.ThreeDimensionalAutoEncoder(mask=mask)
     if args.gpu >= 0:
