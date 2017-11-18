@@ -77,14 +77,14 @@ def main():
 
     mask = np.array(nib.load(args.mask).get_data(), dtype=np.float32)
     try:
-        assert mask == mask[mask.nonzero()]
+        assert 1 == mask[mask.nonzero()]
     except AssertionError:
         warnings.warn("Non-bool mask Warning")
         print("converting to boolean...")
         mask[mask.nonzero()] = 1
-        print(mask)
         mask = mask.astype(np.float32)
-        assert mask == mask[mask.nonzero()]
+
+        assert 1 == mask[mask.nonzero()]
 
     model = _model.ThreeDimensionalAutoEncoder(mask=mask)
     if args.gpu >= 0:
