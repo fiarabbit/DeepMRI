@@ -111,7 +111,7 @@ def main():
     test_iter = iterators.MultiprocessIterator(dataset=test_dataset,
                                                batch_size=args.testBatchsize,
                                                repeat=False, shuffle=False)
-    optimizer = optimizers.MomentumSGD(lr=0.01, momentum=0.9)
+    optimizer = optimizers.MomentumSGD(lr=0.1, momentum=0.9)
     # optimizer = optimizers.Adam()
     optimizer.setup(model)
     optimizer.add_hook(WeightDecay(0.0005))
@@ -147,7 +147,7 @@ def main():
 
     # # if you use SGD, following extension has to be set
     trainer.extend(
-        extensions.ExponentialShift('lr', 0.1, init=0.01),
+        extensions.ExponentialShift('lr', 0.1, init=0.1),
         trigger=(24, 'epoch'))
 
     trainer.run()
