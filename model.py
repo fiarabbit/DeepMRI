@@ -125,7 +125,7 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
         b3 = F.relu(self.bnd4(self.deconv4(b4)))
         b2 = F.relu(self.bnd3(self.deconv3(b3)))
         b1 = F.relu(self.bnd2(self.deconv2(b2)))
-        y = self.deconv1(c1)
+        y = self.deconv1(b1)
 
         _shape = list(y.shape)
         _shape.pop(1)
