@@ -33,7 +33,7 @@ class TimeSeriesAutoEncoderDataset(DatasetMixin):
 
         frame = int(frame)
         filepath = path.join(
-            self.root, "niftiDATA_Subject{}_Condition000.nii"
+            self.root, "subject{}_swaurest.nii"
                 .format(self.subjects[subject]))
         img = nib.load(filepath)
         npimg = img.dataobj[:, :, :, frame]
