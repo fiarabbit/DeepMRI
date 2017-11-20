@@ -11,7 +11,7 @@ import math
 
 class TimeSeriesAutoEncoderDataset(DatasetMixin):
     regexp = re.compile(
-        'subject(?P<sid>\d{3})_swaurest\.nii$')
+        'subject(?P<sid>\d{5})_swaurest\.nii$')
     frame_number = 150
 
     def __init__(self, root, split_inter=True, subsampling=True,
