@@ -61,7 +61,7 @@ print(os.getcwd())
 def main():
     """ called if __name__==='__main__' """
     parser = ArgumentParser()
-    parser.add_argument('--datasetdir', default='/data/timeseries')
+    parser.add_argument('--datasetdir', default='/data/swau_rest')
     parser.add_argument('--split_inter', default=True)
     parser.add_argument('--split_ratio', type=tuple, default=(4, 1))
     # parser.add_argument('--traindir', default='./data/timeseries/train')
