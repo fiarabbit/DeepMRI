@@ -24,8 +24,9 @@ mask[mask!=0] = 1
 loss = []
 for d in test_dataset:
     d = d * mask
-    loss.append(np.abs(d.ravel()) / d.size * len(mask.ravel().nonzero()[0]))
-print(np.array(loss).mean()) # 27.479526846
+    loss.append(np.abs(d.ravel()).mean() * d.size / len(mask.ravel().nonzero()[0]))
+
+print(np.array(loss).mean()) # 927.611583506
 
 def calcoutpsize(insize, kernel, stride, padding):
     return (input+2*padding-kernel)/stride+1
