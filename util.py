@@ -8,8 +8,25 @@ matplotlib.use('Qt5Agg')
 import matplotlib.pyplot as plt
 plt.ioff()
 import time
+import dataset as _dataset
 
 import matplotlib.animation as ani
+
+# def check_naive():
+datasetdir = '/data/timeseries'
+split_inter = True
+all_dataset = _dataset.TimeSeriesAutoEncoderDataset(datasetdir,
+                                                    split_inter=split_inter)
+train_dataset, test_dataset = all_dataset.get_subdatasets()
+
+mask = np.array(nib.load('/data/mask/average_optthr.nii').get_data())
+mask[mask!=0] = 1
+loss = []
+for d in test_dataset:
+    d = d * mask
+    loss.append(np.abs(d.ravel()) / d.size * len(mask.ravel().nonzero()[0]))
+print(np.array(loss).mean()) # 27.479526846
+
 
 def calcoutpsize(insize, kernel, stride, padding):
     return (input+2*padding-kernel)/stride+1
