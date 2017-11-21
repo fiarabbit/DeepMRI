@@ -2,7 +2,7 @@ import chainer
 
 import chainer.functions as F
 import chainer.links as L
-
+import chainer.initializers as I
 
 class ThreeDimensionalAutoEncoder(chainer.Chain):
     in_size = (91, 109, 91)
@@ -11,23 +11,24 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
         assert tuple(mask.shape) == self.in_size
         super().__init__()
         self.mask = chainer.Variable(mask)
+        initializer = I.LeCunUniform()
         with self.init_scope():
-            self.conv1 = L.ConvolutionND(3, 1, 3, (7, 7, 7), 2, 0)
+            self.conv1 = L.ConvolutionND(3, 1, 3, (7, 7, 7), 2, 0, initialW=initializer)
             # (3, 43, 52, 32)
             self.bnc1 = L.BatchNormalization(3)
-            self.conv2 = L.ConvolutionND(3, 3, 10, (5, 6, 5), 2, 0, nobias=True)
+            self.conv2 = L.ConvolutionND(3, 3, 10, (5, 6, 5), 2, 0, nobias=True, initialW=initializer)
             # (10, 20, 24, 20)
             self.bnc2 = L.BatchNormalization(10)
-            self.conv3 = L.ConvolutionND(3, 10, 35, (4, 4, 4), 2, 0, nobias=True)
+            self.conv3 = L.ConvolutionND(3, 10, 35, (4, 4, 4), 2, 0, nobias=True, initialW=initializer)
             # (35, 9, 11, 9)
             self.bnc3 = L.BatchNormalization(35)
-            self.conv4 = L.ConvolutionND(3, 35, 125, (3, 3, 3), 2, 0, nobias=True)
+            self.conv4 = L.ConvolutionND(3, 35, 125, (3, 3, 3), 2, 0, nobias=True, initialW=initializer)
             # (125, 4, 5, 4)
             self.bnc4 = L.BatchNormalization(125)
-            self.conv5 = L.ConvolutionND(3, 125, 270, (3, 3, 3), 1, 0, nobias=True)
+            self.conv5 = L.ConvolutionND(3, 125, 270, (3, 3, 3), 1, 0, nobias=True, initialW=initializer)
             # (270, 2, 3, 2)
             self.bnc5 = L.BatchNormalization(270)
-            self.conv6 = L.ConvolutionND(3, 270, 1000, (2, 3, 2), 1, 0, nobias=True)
+            self.conv6 = L.ConvolutionND(3, 270, 1000, (2, 3, 2), 1, 0, nobias=True, initialW=initializer)
             # (1000, 1, 1, 1)
             self.bnc6 = L.BatchNormalization(1000)
             # self.l1 = L.Linear(None, 300)
@@ -49,22 +50,22 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
             # (1000,)
             # self.bnl6 = L.BatchNormalization(1000)
             # (1000, 1, 1, 1)
-            self.deconv6 = L.DeconvolutionND(3, 1000, 270, (2, 3, 2), 1, 0, nobias=True)
+            self.deconv6 = L.DeconvolutionND(3, 1000, 270, (2, 3, 2), 1, 0, nobias=True, initialW=initializer)
             # (270, 2, 3, 2)
             self.bnd6 = L.BatchNormalization(270)
-            self.deconv5 = L.DeconvolutionND(3, 270, 125, (3, 3, 3), 1, 0, nobias=True)
+            self.deconv5 = L.DeconvolutionND(3, 270, 125, (3, 3, 3), 1, 0, nobias=True, initialW=initializer)
             # (125, 4, 5, 4)
             self.bnd5 = L.BatchNormalization(125)
-            self.deconv4 = L.DeconvolutionND(3, 125, 35, (3, 3, 3), 2, 0, nobias=True)
+            self.deconv4 = L.DeconvolutionND(3, 125, 35, (3, 3, 3), 2, 0, nobias=True, initialW=initializer)
             # (35, 9, 11, 9)
             self.bnd4 = L.BatchNormalization(35)
-            self.deconv3 = L.DeconvolutionND(3, 35, 10, (4, 4, 4), 2, 0, nobias=True)
+            self.deconv3 = L.DeconvolutionND(3, 35, 10, (4, 4, 4), 2, 0, nobias=True, initialW=initializer)
             # (10, 20, 24, 20)
             self.bnd3 = L.BatchNormalization(10)
-            self.deconv2 = L.DeconvolutionND(3, 10, 3, (5, 6, 5), 2, 0, nobias=True)
+            self.deconv2 = L.DeconvolutionND(3, 10, 3, (5, 6, 5), 2, 0, nobias=True, initialW=initializer)
             # (3, 43, 52, 32)
             self.bnd2 = L.BatchNormalization(3)
-            self.deconv1 = L.DeconvolutionND(3, 3, 1, (7, 7, 7), 2, 0)
+            self.deconv1 = L.DeconvolutionND(3, 3, 1, (7, 7, 7), 2, 0, initialW=initializer)
             # (1, 91, 109, 91)
 
     def to_cpu(self):
