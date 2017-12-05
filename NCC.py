@@ -14,7 +14,7 @@ def main():
     parser = ArgumentParser()
     parser.add_argument('--gpu', default=-1, type=int)
     parser.add_argument('--datasetdir', default='/data/timeseries')
-    parser.add_argument('--testBatchsize', default=32)
+    parser.add_argument('--testBatchsize', default=32, type=int)
     parser.add_argument('--model', nargs=1)
     parser.add_argument('--result', default='feature')
     parser.add_argument('--split_inter', default=True)
@@ -44,8 +44,8 @@ def main():
     i = 0
     while True:
         try:
-            start_idx = i * int(args.testBatchsize)
-            end_idx = np.min([(i + 1) * int(args.testBatchsize), len(test_dataset)])
+            start_idx = i * args.testBatchsize
+            end_idx = np.min([(i + 1) * args.testBatchsize, len(test_dataset)])
             print("{}...{}/{}".format(start_idx, end_idx, len(test_dataset)))
             _batch = next(test_itr)
             batch = converter(_batch)
