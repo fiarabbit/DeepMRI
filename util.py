@@ -257,4 +257,4 @@ def plotMeanHist():
 
 
 if __name__ == '__main__':
-    global_mean()
+    individual_mean()
