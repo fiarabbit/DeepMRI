@@ -76,7 +76,8 @@ def global_mean(gpu=0):
             i+=1
         except StopIteration:
             break
-    stack_cossim = np.vstack(stack_cossim)
+
+    stack_cossim = np.hstack(stack_cossim)
     with open("g_stack_cossim.npz", "wb") as f:
         np.savez(f, data=stack_cossim)
 
