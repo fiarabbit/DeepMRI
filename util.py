@@ -73,7 +73,7 @@ def global_mean(gpu=0):
                      range(input_batch_data.shape[0])]
                 )
             )
-
+            i+=1
         except StopIteration:
             break
     stack_cossim = np.vstack(stack_cossim)
