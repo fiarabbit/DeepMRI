@@ -56,9 +56,9 @@ def main():
             print(xp.abs)
             print(output_batch.shape)
             print(input_batch.shape)
-            print(type(output_batch))
-            print(type(input_batch))
-            abs_loss = xp.abs(output_batch - input_batch)
+            print(type(output_batch.data))
+            print(type(input_batch.data))
+            abs_loss = xp.abs(output_batch.data - input_batch.data)
             loss_batch = xp.mean(abs_loss, axis=tuple(range(1, len(output_batch.shape))))
             try:
                 stack_loss
@@ -67,7 +67,7 @@ def main():
                 stack_loss = np.zeros([len(test_dataset)])
                 stack_cossim = np.zeros([len(test_dataset)])
             stack_loss[start_idx:end_idx] = loss_batch
-            stack_cossim[start_idx:end_idx] = np.array([1-cosine(input_batch[j,], output_batch[j,]) for j in range(input_batch.shape[0])])
+            stack_cossim[start_idx:end_idx] = np.array([1-cosine(input_batch.data[j,], output_batch.data[j,]) for j in range(input_batch.shape[0])])
             i += 1
         except StopIteration:
             break
