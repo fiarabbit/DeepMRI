@@ -29,12 +29,10 @@ def create_npimg(root_dir='/data/timeseries',
     frame_number = 150
     subjects = [regexp.match(file).group('sid') for file in listdir(root_dir)]
     for subject in subjects:
-        print(subject)
         filepath = path.join(root_dir, "niftiDATA_Subject{}_Condition000.nii"
                              .format(subject))
         npimg = np.array(nib.load(filepath).get_data())
         for frame in range(frame_number):
-            print(frame)
             print("subject{:03d}_frame{:03d}.npy".format(int(subject), frame))
             dest_filepath = path.join(dest_dir, "subject{0:03d}_frame{0:03d}.npy".format(int(subject), frame))
             npimg_sliced = npimg[list(idx_mask) + [frame]]
