@@ -52,6 +52,12 @@ def main():
             input_batch = F.scale(batch, model.mask, axis=1)
             output_batch = model.calc(input_batch)
             output_batch = F.scale(output_batch, model.mask, axis=1)
+            print(xp)
+            print(xp.abs)
+            print(output_batch.shape)
+            print(input_batch.shape)
+            print(type(output_batch))
+            print(type(input_batch))
             abs_loss = xp.abs(output_batch - input_batch)
             loss_batch = xp.mean(abs_loss, axis=tuple(range(1, len(output_batch.shape))))
             try:
