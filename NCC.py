@@ -64,7 +64,7 @@ def main():
                 stack_cossim = np.zeros([len(test_dataset)])
 
             stack_loss[start_idx:end_idx] = loss_batch
-            stack_cossim[start_idx:end_idx] = np.array([1-cosine(input_batch_data[j,], output_batch_data[j,]) for j in range(input_batch_data.shape[0])])
+            stack_cossim[start_idx:end_idx] = np.array([1-cosine(input_batch_data[j,].ravel(), output_batch_data[j,].ravel()) for j in range(input_batch_data.shape[0])])
             i += 1
         except StopIteration:
             break
