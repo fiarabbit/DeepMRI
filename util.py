@@ -41,7 +41,7 @@ def individual_mean(gpu=0):
     i = 0
     while True:
         try:
-            print("{}/{}".format(i * 64, len(test_dataset)))
+            print("{}/{}".format(i * 150, len(test_dataset)))
             batch = concat_examples(next(test_itr))
             input_batch_data = batch[[Ellipsis] + list(idx_mask)]
             output_batch_data = input_batch_data.mean(axis=0)
