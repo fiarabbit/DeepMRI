@@ -46,7 +46,7 @@ def individual_loss(gpu=0):
             output_batch_data = input_batch_data.mean(axis=0)
             stack_loss.append(
                 np.array(
-                    [np.mean(np.abs(input_batch_data[j, :] - output_batch_data), axis=1) for j in
+                    [np.mean(np.abs(input_batch_data[j, :] - output_batch_data)) for j in
                      range(input_batch_data.shape[0])]
                 )
             )
