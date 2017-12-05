@@ -39,7 +39,7 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
     def calc(self, x):
         _shape = list(x.shape)
         try:
-            assert tuple(_shape[1:]) == tuple(self.len_idx_mask)
+            assert tuple(_shape[1:]) == (self.len_idx_mask,)
         except AssertionError:
             print("expected:{}, actual:{}"
                   .format(tuple(self.len_idx_mask), tuple(_shape[1:])))
