@@ -351,4 +351,4 @@ def plotMeanHist():
 
 
 if __name__ == '__main__':
-    show_log()
+    create_npimg()
