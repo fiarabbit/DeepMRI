@@ -4,14 +4,39 @@ from os import listdir
 from os.path import join
 
 import matplotlib
+
 matplotlib.use('Qt5Agg')
 import matplotlib.pyplot as plt
+
 plt.ioff()
 import time
 import dataset as _dataset
 
 import matplotlib.animation as ani
 import json
+import re
+from os import path
+
+
+def create_npimg(root_dir='/data/timeseries',
+                 mask_path='/data/mask/average_optthr.nii',
+                 dest_dir='/data3'):
+
+    idx_mask = np.array(nib.load(mask_path).get_data()).nonzero()
+
+    regexp = re.compile(
+        'niftiDATA_Subject(?P<sid>\d{3})_Condition(?P<cid>\d{3})\.nii$')
+    frame_number = 150
+    subjects = [regexp.match(file).group('sid') for file in listdir(root_dir)]
+    for subject in subjects:
+        filepath = path.join(root_dir, "niftiDATA_Subject{}_Condition000.nii"
+                             .format(subject))
+        npimg = np.array(nib.load(filepath).get_data())
+        for frame in range(frame_number):
+            print("subject{0:03d}_frame{0:03d}.npy".format(int(subject), frame))
+            dest_filepath = path.join(dest_dir, "subject{0:03d}_frame{0:03d}.npy".format(int(subject), frame))
+            npimg_sliced = npimg[list(idx_mask) + [frame]]
+            np.save(dest_filepath, npimg_sliced)
 
 
 """mask
@@ -177,6 +202,7 @@ deconv1 = Identity
 1, 70, 88, 74
 """
 
+
 def show_log():
     with open('log', 'r') as f:
         data = json.load(f)
@@ -184,7 +210,7 @@ def show_log():
     val_loss = np.zeros((len(data),))
     for i, item in enumerate(data):
         val_loss[i] = item['validation/main/loss']
-    fig, ax = plt.subplots(1,1)
+    fig, ax = plt.subplots(1, 1)
     plt.plot(val_loss[5:])
     plt.show()
 
@@ -197,18 +223,19 @@ def check_naive():
     train_dataset, test_dataset = all_dataset.get_subdatasets()
 
     mask = np.array(nib.load('/data/mask/average_optthr.nii').get_data())
-    mask[mask!=0] = 1
+    mask[mask != 0] = 1
 
     loss = np.zeros((len(test_dataset),))
     for i, d in enumerate(test_dataset):
         d = d * mask
-        loss[i] = np.abs(d.ravel()).mean() * d.size / len(mask.ravel().nonzero()[0])
+        loss[i] = np.abs(d.ravel()).mean() * d.size / len(
+            mask.ravel().nonzero()[0])
 
-    print(loss.mean()) # 0.283901693217
+    print(loss.mean())  # 0.283901693217
 
 
 def calcoutpsize(insize, kernel, stride, padding):
-    return (input+2*padding-kernel)/stride+1
+    return (input + 2 * padding - kernel) / stride + 1
 
 
 def anim():
@@ -236,10 +263,12 @@ def mask():
     d = h.dataobj
     frame = 0
     f = d[:, :, :, frame]
+
     # f = d
     class AnimationFunc:
         s = 0
         im = None
+
         def __init__(self, img_3d):
             self.img_3d = img_3d
 
@@ -248,17 +277,16 @@ def mask():
             print(img_2d.max())
             if self.s == 0:
                 self.im = plt.imshow(img_2d)
-                self.im.set_clim(0,2000)
+                self.im.set_clim(0, 2000)
             elif self.s > 0:
                 self.im.set_data(img_2d)
             plt.pause(0.1)
             self.s += 1
             print(self.s)
+
     a = AnimationFunc(f)
     while True:
         a()
-
-
 
 
 def calcHist():
@@ -268,7 +296,7 @@ def calcHist():
     len_frames = 150
     h = np.histogram(np.hstack(
         [nib.load(join(datasetdir, files[l])).dataobj for l in range(5)]),
-                     bins=100)
+        bins=100)
     b = h[1].copy()
     np.savez('bin.npz', b=b)
     h_list = []
@@ -278,6 +306,7 @@ def calcHist():
                 0])
         np.savez('histogram.npz', h_list=h_list)
         print(h_list)
+
 
 def test_calcHist():
     datasetdir = '/data/timeseries'
@@ -296,16 +325,19 @@ def plotHist():
     b = np.load('bin.npz')['b']
     s = h_list.sum(axis=0)
     fig, ax = plt.subplots()
-    ax.set_xlim(-2,2)
+    ax.set_xlim(-2, 2)
+
     class Anime():
-        k=0
+        k = 0
+
         def __call__(self, i):
             if self.k == 0:
                 self.p = ax.bar(b[0:-1], h_list[0, :])
-            elif self.k<h_list.shape[0]:
+            elif self.k < h_list.shape[0]:
                 for i, n in enumerate(self.p):
                     n.set_height(h_list[self.k, i])
-            self.k+=1
+            self.k += 1
+
     a = Anime()
     anim = ani.FuncAnimation(fig, a)
     plt.show()
@@ -316,6 +348,7 @@ def plotMeanHist():
     print(meanArr.mean())
     plt.hist(meanArr)
     plt.show()
+
 
 if __name__ == '__main__':
     show_log()
