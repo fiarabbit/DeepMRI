@@ -9,7 +9,7 @@ import chainer.initializers as I
 class ThreeDimensionalAutoEncoder(chainer.Chain):
     in_size = (150350,)
 
-    def __init__(self, mask):
+    def __init__(self):
         super().__init__()
 
         initializer = I.LeCunNormal()

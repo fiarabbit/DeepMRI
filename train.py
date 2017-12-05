@@ -61,7 +61,7 @@ print(os.getcwd())
 def main():
     """ called if __name__==='__main__' """
     parser = ArgumentParser()
-    parser.add_argument('--datasetdir', default='/data/timeseries')
+    parser.add_argument('--datasetdir', default='/data/data')
     parser.add_argument('--split_inter', default=True)
     parser.add_argument('--split_ratio', type=tuple, default=(4, 1))
     # parser.add_argument('--traindir', default='./data/timeseries/train')
@@ -72,26 +72,14 @@ def main():
     parser.add_argument('--output', default='result')
     parser.add_argument('--resumeFrom')
     parser.add_argument('--exponentialShift', default=1, type=float)
-    parser.add_argument('--mask', default='/data/mask/average_optthr.nii')
     args = parser.parse_args()
 
-    mask = np.array(nib.load(args.mask).get_data(), dtype=np.float32)
-    try:
-        assert (1 == mask[mask.nonzero()]).all()
-    except AssertionError:
-        warnings.warn("Non-bool mask Warning")
-        print("converting to boolean...")
-        mask[mask.nonzero()] = 1
-        mask = mask.astype(np.float32)
-
-        assert (1 == mask[mask.nonzero()]).all()
-
-    model = _model.ThreeDimensionalAutoEncoder(mask=mask)
+    model = _model.ThreeDimensionalAutoEncoder()
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()
         model.to_gpu()
 
-    all_dataset = _dataset.TimeSeriesAutoEncoderDataset(args.datasetdir, mask,
+    all_dataset = _dataset.TimeSeriesAutoEncoderDataset(args.datasetdir,
                                                         split_inter=args.split_inter)
     train_dataset, test_dataset = all_dataset.get_subdatasets()
 

@@ -14,10 +14,8 @@ class TimeSeriesAutoEncoderDataset(DatasetMixin):
         'subject(?P<sid>\d{3})_frame(?P<fid>\d{3})\.npy$')
     frame_number = 150
 
-    def __init__(self, root, mask, split_inter=True, subsampling=True,
+    def __init__(self, root, split_inter=True, subsampling=True,
                  split_ratio=(4, 1)):
-        self.mask = mask
-        self.idx_mask = self.mask.nonzero()
         self.root = root
         self.files = listdir(self.root)
         self.subjects = sorted(
