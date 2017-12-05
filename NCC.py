@@ -49,31 +49,25 @@ def main():
             _batch = next(test_itr)
             batch = converter(_batch)
             input_batch = F.scale(batch, model.mask, axis=1)
-            output_batch = model.calc(input_batch)
-            output_batch = F.scale(output_batch, model.mask, axis=1)
-            try:
-                xp
-            except NameError:
-                xp = chainer.cuda.get_array_module(output_batch)
+            output_batch = F.scale(model.calc(input_batch), model.mask, axis=1)
 
-            abs_loss = xp.abs(output_batch.data - input_batch.data)
-            loss_batch = xp.mean(abs_loss, axis=tuple(range(1, len(output_batch.shape))))
+            input_batch_data = chainer.cuda.to_cpu(input_batch.data)
+            output_batch_data = chainer.cuda.to_cpu(output_batch.data)
+
+            loss_batch = np.mean(np.abs(output_batch_data - input_batch_data), axis=tuple(range(1, len(output_batch.shape))))
 
             try:
                 stack_loss
                 stack_cossim
             except NameError:
-                stack_loss = xp.zeros([len(test_dataset)])
-                stack_cossim = xp.zeros([len(test_dataset)])
+                stack_loss = np.zeros([len(test_dataset)])
+                stack_cossim = np.zeros([len(test_dataset)])
 
             stack_loss[start_idx:end_idx] = loss_batch
-            stack_cossim[start_idx:end_idx] = xp.array([1-cosine(input_batch.data[j,], output_batch.data[j,]) for j in range(input_batch.shape[0])])
+            stack_cossim[start_idx:end_idx] = np.array([1-cosine(input_batch_data[j,], output_batch_data[j,]) for j in range(input_batch_data.shape[0])])
             i += 1
         except StopIteration:
             break
-
-    stack_loss = chainer.cuda.to_cpu(stack_loss)
-    stack_cossim = chainer.cuda.to_cpu(stack_cossim)
 
     with open("stack_loss.npz", "wb") as f:
         np.savez(f,data=stack_loss)
