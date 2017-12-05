@@ -14,7 +14,7 @@ def main():
     parser = ArgumentParser()
     parser.add_argument('--gpu', default=-1, type=int)
     parser.add_argument('--datasetdir', default='/data/timeseries')
-    parser.add_argument('--testBatchsize', default=64)
+    parser.add_argument('--testBatchsize', default=32)
     parser.add_argument('--model', nargs=1)
     parser.add_argument('--result', default='feature')
     parser.add_argument('--split_inter', default=True)
@@ -52,15 +52,15 @@ def main():
             input_batch = F.scale(batch, model.mask, axis=1)
             output_batch = model.calc(input_batch)
             output_batch = F.scale(output_batch, model.mask, axis=1)
-            batch_size = output_batch.shape[0]
-            loss_batch = xp.mean(xp.abs(output_batch - input_batch), axis=tuple(range(1, len(output_batch.shape))))
+            abs_loss = xp.abs(output_batch - input_batch)
+            loss_batch = xp.mean(abs_loss, axis=tuple(range(1, len(output_batch.shape))))
             try:
                 stack_loss
                 stack_cossim
             except NameError:
                 stack_loss = np.zeros([len(test_dataset)])
                 stack_cossim = np.zeros([len(test_dataset)])
-            stack_loss[start_idx:end_idx] = stack_loss
+            stack_loss[start_idx:end_idx] = loss_batch
             stack_cossim[start_idx:end_idx] = np.array([1-cosine(input_batch[j,], output_batch[j,]) for j in range(input_batch.shape[0])])
             i += 1
         except StopIteration:
