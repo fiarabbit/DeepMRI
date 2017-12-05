@@ -38,20 +38,23 @@ def global_mean(gpu=0):
     test_itr = iterators.SerialIterator(dataset=test_dataset,
                                         batch_size=64,
                                         repeat=False, shuffle=False)
-    stack = []
-    i = 0
-    while True:
-        try:
-            print("{}/{}".format(i*64, len(train_dataset)))
-            batch = concat_examples(next(train_itr), gpu)
-            stack.append(to_cpu(batch.sum(axis=0)))
-            i += 1
-        except StopIteration:
-            break
+    # stack = []
+    # i = 0
+    # while True:
+    #     try:
+    #         print("{}/{}".format(i*64, len(train_dataset)))
+    #         batch = concat_examples(next(train_itr), gpu)
+    #         stack.append(to_cpu(batch.sum(axis=0)))
+    #         i += 1
+    #     except StopIteration:
+    #         break
+    #
+    # g_mean = np.stack(stack).sum(axis=0) / len(train_dataset)
+    # with open("g_mean.npz", "wb") as f:
+    #     np.savez(f, data=g_mean)
 
-    g_mean = np.stack(stack).sum(axis=0) / len(train_dataset)
-    with open("g_mean.npz", "wb") as f:
-        np.savez(f, data=g_mean)
+    with open("g_mean.npz", "rb") as f:
+        g_mean = np.load(f)["data"]
 
     assert isinstance(g_mean, np.ndarray)
 
@@ -66,7 +69,7 @@ def global_mean(gpu=0):
             output_batch_data = g_mean[list(idx_mask)]
             stack_cossim.append(
                 np.array(
-                    [1 - cosine(batch[j, :], output_batch_data) for j in
+                    [1 - cosine(input_batch_data, output_batch_data) for j in
                      range(input_batch_data.shape[0])]
                 )
             )
