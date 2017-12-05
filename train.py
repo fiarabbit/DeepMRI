@@ -91,7 +91,7 @@ def main():
         chainer.cuda.get_device_from_id(args.gpu).use()
         model.to_gpu()
 
-    all_dataset = _dataset.TimeSeriesAutoEncoderDataset(args.datasetdir,
+    all_dataset = _dataset.TimeSeriesAutoEncoderDataset(args.datasetdir, mask,
                                                         split_inter=args.split_inter)
     train_dataset, test_dataset = all_dataset.get_subdatasets()
 
