@@ -52,7 +52,6 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
 
     def __call__(self, x):
         assert tuple(x.shape[1:]) == self.in_size
-        slicer = []
         x_reshaped = x[[None] + list(self.idx_mask)]
         y_reshaped = self.calc(x_reshaped)
 
