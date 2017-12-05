@@ -69,7 +69,7 @@ def global_mean(gpu=0):
             output_batch_data = g_mean[list(idx_mask)]
             stack_cossim.append(
                 np.array(
-                    [1 - cosine(input_batch_data, output_batch_data) for j in
+                    [1 - cosine(input_batch_data[j, :], output_batch_data) for j in
                      range(input_batch_data.shape[0])]
                 )
             )
