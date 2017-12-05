@@ -18,6 +18,7 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
             self.xp.array(mask != 0, dtype=self.xp.float32))
         assert tuple(mask.shape) == self.in_size
 
+        print(type(self.mask.data))
         self.idx_mask = self.xp(self.mask.data.nonzero())
         assert isinstance(self.idx_mask, tuple)
 
