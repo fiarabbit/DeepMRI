@@ -52,6 +52,8 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
 
     def __call__(self, x):
         assert tuple(x.shape[1:]) == self.in_size
+        print("x: {}".format(x))
+        print("idx_mask: {}".format(self.idx_mask))
         x_reshaped = x[self.idx_mask]
         y_reshaped = self.calc(x_reshaped)
 
