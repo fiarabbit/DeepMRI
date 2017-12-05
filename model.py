@@ -42,7 +42,7 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
             assert tuple(_shape[1:]) == (self.len_idx_mask,)
         except AssertionError:
             print("expected:{}, actual:{}"
-                  .format(tuple(self.len_idx_mask), tuple(_shape[1:])))
+                  .format((self.len_idx_mask,), tuple(_shape[1:])))
             exit()
 
         h = self.linear1(x)
