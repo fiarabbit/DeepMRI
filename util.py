@@ -20,6 +20,46 @@ import matplotlib.animation as ani
 from scipy.spatial.distance import cosine
 
 
+def individual_mean(gpu=0):
+    if gpu >= 0:
+        xp = cupy
+    else:
+        xp = numpy
+
+    datasetdir = '/data/timeseries'
+    split_inter = True
+    all_dataset = _dataset.TimeSeriesAutoEncoderDataset(datasetdir,
+                                                        split_inter=split_inter)
+    train_dataset, test_dataset = all_dataset.get_subdatasets()
+    mask = np.array(nib.load('/data/mask/average_optthr.nii').get_data())
+    test_itr = iterators.SerialIterator(dataset=test_dataset,
+                                        batch_size=150,
+                                        repeat=False, shuffle=False)
+
+    stack_cossim = []
+    idx_mask = mask.nonzero()
+    i = 0
+    while True:
+        try:
+            print("{}/{}".format(i * 64, len(test_dataset)))
+            batch = concat_examples(next(test_itr))
+            input_batch_data = batch[[Ellipsis] + list(idx_mask)]
+            output_batch_data = input_batch_data.mean(axis=0)
+            stack_cossim.append(
+                np.array(
+                    [1 - cosine(input_batch_data[j, :], output_batch_data)
+                     for j in
+                     range(input_batch_data.shape[0])]
+                )
+            )
+            i += 1
+        except StopIteration:
+            break
+
+    stack_cossim = np.hstack(stack_cossim)
+    with open("i_stack_cossim.npz", "wb") as f:
+        np.savez(f, data=stack_cossim)
+
 def global_mean(gpu=0):
     if gpu >= 0:
         xp = cupy
@@ -83,7 +123,7 @@ def global_mean(gpu=0):
 
 def check_naive():
     datasetdir = '/data/timeseries'
-
+    split_inter = True
     all_dataset = _dataset.TimeSeriesAutoEncoderDataset(datasetdir,
                                                         split_inter=split_inter)
     train_dataset, test_dataset = all_dataset.get_subdatasets()
