@@ -40,7 +40,6 @@ def main():
     def converter(_batch):
         return chainer.dataset.concat_examples(_batch, device=args.gpu)
 
-    xp = chainer.cuda.get_array_module()
     i = 0
     while True:
         try:
@@ -52,6 +51,11 @@ def main():
             input_batch = F.scale(batch, model.mask, axis=1)
             output_batch = model.calc(input_batch)
             output_batch = F.scale(output_batch, model.mask, axis=1)
+            try:
+                xp
+            except NameError:
+                xp = chainer.cuda.get_array_module(output_batch)
+
             print(xp)
             print(xp.abs)
             print(output_batch.shape)
