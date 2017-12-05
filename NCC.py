@@ -29,6 +29,7 @@ def main():
                                         repeat=False, shuffle=False)
 
     mask = np.array(nib.load(args.mask).get_data(), dtype=np.float32)
+    idx_mask = mask.nonzero()
     model = _model.ThreeDimensionalAutoEncoder(mask)
 
     chainer.serializers.load_npz(args.model[0], model)
@@ -51,10 +52,10 @@ def main():
             input_batch = F.scale(batch, model.mask, axis=1)
             output_batch = F.scale(model.calc(input_batch), model.mask, axis=1)
 
-            input_batch_data = chainer.cuda.to_cpu(input_batch.data)
-            output_batch_data = chainer.cuda.to_cpu(output_batch.data)
+            input_batch_data = chainer.cuda.to_cpu(input_batch.data)[[Ellipsis] + list(idx_mask)]
+            output_batch_data = chainer.cuda.to_cpu(output_batch.data)[[Ellipsis] + list(idx_mask)]
 
-            loss_batch = np.mean(np.abs(output_batch_data - input_batch_data), axis=tuple(range(1, len(output_batch.shape))))
+            loss_batch = np.mean(np.abs(output_batch_data - input_batch_data), axis=1)
 
             try:
                 stack_loss
@@ -64,7 +65,7 @@ def main():
                 stack_cossim = np.zeros([len(test_dataset)])
 
             stack_loss[start_idx:end_idx] = loss_batch
-            stack_cossim[start_idx:end_idx] = np.array([1-cosine(input_batch_data[j,].ravel(), output_batch_data[j,].ravel()) for j in range(input_batch_data.shape[0])])
+            stack_cossim[start_idx:end_idx] = np.array([1-cosine(input_batch_data[j, :], output_batch_data[j, :]) for j in range(input_batch_data.shape[0])])
             i += 1
         except StopIteration:
             break
