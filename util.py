@@ -34,7 +34,7 @@ def create_npimg(root_dir='/data/timeseries',
         npimg = np.array(nib.load(filepath).get_data())
         for frame in range(frame_number):
             print("subject{:03d}_frame{:03d}.npy".format(int(subject), frame))
-            dest_filepath = path.join(dest_dir, "subject{0:03d}_frame{0:03d}.npy".format(int(subject), frame))
+            dest_filepath = path.join(dest_dir, "subject{:03d}_frame{:03d}.npy".format(int(subject), frame))
             npimg_sliced = npimg[list(idx_mask) + [frame]]
             np.save(dest_filepath, npimg_sliced)
 
