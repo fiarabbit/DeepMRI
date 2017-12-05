@@ -11,7 +11,7 @@ import math
 
 class TimeSeriesAutoEncoderDataset(DatasetMixin):
     regexp = re.compile(
-        'niftiDATA_Subject(?P<sid>\d{3})_Condition(?P<cid>\d{3})\.nii$')
+        'subject(?P<sid>\d{3})_frame(?P<fid>\d{3})\.npy$')
     frame_number = 150
 
     def __init__(self, root, mask, split_inter=True, subsampling=True,
@@ -20,8 +20,8 @@ class TimeSeriesAutoEncoderDataset(DatasetMixin):
         self.idx_mask = self.mask.nonzero()
         self.root = root
         self.files = listdir(self.root)
-        self.subjects = [self.regexp.match(file).group('sid') for file in
-                         self.files]
+        self.subjects = sorted(
+            [self.regexp.match(file).group('sid') for file in self.files])
         self.subject_number = len(self.subjects)
         self.split_inter = split_inter
         self.subsampling = subsampling
@@ -35,10 +35,10 @@ class TimeSeriesAutoEncoderDataset(DatasetMixin):
 
         frame = int(frame)
         filepath = path.join(
-            self.root, "niftiDATA_Subject{}_Condition000.nii"
-                .format(self.subjects[subject]))
-        img = nib.load(filepath)
-        npimg = img.dataobj[list(self.idx_mask) + [frame]]
+            self.root, "subject{:03d}_frame{:03d}.npy"
+                .format(int(self.subjects[subject]), frame))
+        with open(filepath, 'rb') as f:
+            npimg = np.load(f)
         return npimg
 
     def get_subdatasets(self):

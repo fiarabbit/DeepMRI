@@ -9,8 +9,6 @@ import chainer.initializers as I
 class ThreeDimensionalAutoEncoder(chainer.Chain):
     in_size = (150350,)
 
-    # valid_range = [slice(10, 80, None), slice(11, 99, None), slice(3, 77, None)]
-
     def __init__(self, mask):
         super().__init__()
 
