@@ -20,7 +20,7 @@ from os import path
 
 def create_npimg(root_dir='/data/timeseries',
                  mask_path='/data/mask/average_optthr.nii',
-                 dest_dir='/data3'):
+                 dest_dir='/data3/data'):
 
     idx_mask = np.array(nib.load(mask_path).get_data()).nonzero()
 
