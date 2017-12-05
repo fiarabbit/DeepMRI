@@ -31,12 +31,10 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
     def to_cpu(self):
         super().to_cpu()
         self.mask.to_cpu()
-        self.idx_mask.to_cpu()
 
     def to_gpu(self, device=None):
         super().to_gpu(device)
         self.mask.to_gpu(device)
-        self.idx_mask.to_gpu(device)
 
     def calc(self, x):
         _shape = list(x.shape)
