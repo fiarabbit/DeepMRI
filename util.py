@@ -11,23 +11,200 @@ import time
 import dataset as _dataset
 
 import matplotlib.animation as ani
+import json
 
-# def check_naive():
-datasetdir = '/data/timeseries'
-split_inter = True
-all_dataset = _dataset.TimeSeriesAutoEncoderDataset(datasetdir,
-                                                    split_inter=split_inter)
-train_dataset, test_dataset = all_dataset.get_subdatasets()
 
-mask = np.array(nib.load('/data/mask/average_optthr.nii').get_data())
-mask[mask!=0] = 1
+"""mask
+valid = mask[10:80, 11:99, 3:77]
+150350 True / 455840 (= 70 * 88 * 74)
+"""
 
-loss = np.zeros((len(test_dataset),))
-for i, d in enumerate(test_dataset):
-    d = d * mask
-    loss[i] = np.abs(d.ravel()).mean() * d.size / len(mask.ravel().nonzero()[0])
+"""plan1 - VGG-like w/ Init=Identity
+Principally, the initial weights do just an aliasing.
+So the results cannot be worth than "just averaging"
 
-print(loss.mean()) # 0.283901693217
+Note: learn with drop-out
+
+1, 70, 88, 74
+conv1 = Identity (0, 1, 0) -> (1/64,)
+64, 70, 88, 74
+conv2 = Identity (0, 1, 0) -> (1,)
+64, 70, 88, 74
+pool1
+64, 35, 44, 37
+conv3 = Identity
+128, 36, 44, 38
+conv4 = Identity
+128, 36, 44, 38
+pool2
+128, 18, 22, 19
+conv5 = Identity
+256, 18, 22, 20
+conv6 = Identity
+256, 18, 22, 20
+pool3
+256, 9, 11, 10
+conv7 = Identity
+512, 10, 12, 10
+conv8 = Identity
+512, 10, 12, 10
+pool4
+512, 5, 6, 5
+conv9 = Identity
+1024, 6, 6, 6
+conv10 = Identity
+1024, 6, 6, 6
+pool5
+1024, 3, 3, 3
+1*1conv = Constant (1/1024,) -> (1/k,)
+k, 3, 3, 3 (k1=27, k10=270, k100=2700)
+1*1deconv = Constant (1/k,) -> (1/1024)
+1024, 3, 3, 3
+upsample5
+1024, 6, 6, 6
+conv10 = Identity ()
+1024, 6, 6, 6
+deconv9 = Identity (1/1024) -> (0, 1/512, 0)
+512, 5, 6, 5
+upsample4
+512, 10, 12, 10
+deconv8 = Identity
+512, 10, 12, 10
+deconv7 = Identity
+256, 9, 11, 10
+upsample3
+256, 18, 22, 20
+deconv6 = Identity
+256, 18, 22, 20
+deconv5 = Identity
+128, 18, 22, 19
+upsample2
+128, 36, 44, 38
+deconv4 = Identity
+128, 36, 44, 38
+deconv3 = Identity
+64, 35, 44, 37
+upsample1
+64, 70, 88, 74
+deconv2 = Identity
+64, 70, 88, 74
+deconv1 = Identity
+1, 70, 88, 74
+"""
+
+"""plan2 - MLP
+1, 70, 88, 74
+mask
+150350,
+linear
+1000,
+linear
+150350,
+unmask
+1, 70, 88, 74
+"""
+
+"""plan3 - VGG-like w/ Init=Identity
+Principally, the initial weights do just an aliasing.
+So the results cannot be worth than "just averaging"
+
+Note: learn with drop-out
+
+1, 70, 88, 74
+conv1 = Identity (0, 1, 0) -> (1/64,)
+64, 70, 88, 74
+conv2 = Identity (0, 1, 0) -> (1,)
+64, 70, 88, 74
+pool1
+64, 35, 44, 37
+conv3 = Identity
+128, 36, 44, 38
+conv4 = Identity
+128, 36, 44, 38
+pool2
+128, 18, 22, 19
+conv5 = Identity
+256, 18, 22, 20
+conv6 = Identity
+256, 18, 22, 20
+pool3
+256, 9, 11, 10
+conv7 = Identity
+512, 10, 12, 10
+conv8 = Identity
+512, 10, 12, 10
+pool4
+512, 5, 6, 5
+conv9 = Identity
+1024, 6, 6, 6
+conv10 = Identity
+1024, 6, 6, 6
+pool5
+1024, 3, 3, 3
+1*1conv = Constant (1/1024,) -> (1/k,)
+k, 3, 3, 3 (k1=27, k10=270, k100=2700)
+1*1deconv = Constant (1/k,) -> (1/1024)
+1024, 3, 3, 3
+upsample5
+1024, 6, 6, 6
+conv10 = Identity ()
+1024, 6, 6, 6
+deconv9 = Identity (1/1024) -> (0, 1/512, 0)
+512, 5, 6, 5
+upsample4
+512, 10, 12, 10
+deconv8 = Identity
+512, 10, 12, 10
+deconv7 = Identity
+256, 9, 11, 10
+upsample3
+256, 18, 22, 20
+deconv6 = Identity
+256, 18, 22, 20
+deconv5 = Identity
+128, 18, 22, 19
+upsample2
+128, 36, 44, 38
+deconv4 = Identity
+128, 36, 44, 38
+deconv3 = Identity
+64, 35, 44, 37
+upsample1
+64, 70, 88, 74
+deconv2 = Identity
+64, 70, 88, 74
+deconv1 = Identity
+1, 70, 88, 74
+"""
+
+def show_log():
+    with open('log', 'r') as f:
+        data = json.load(f)
+
+    val_loss = np.zeros((len(data),))
+    for i, item in enumerate(data):
+        val_loss[i] = item['validation/main/loss']
+    fig, ax = plt.subplots(1,1)
+    plt.plot(val_loss[5:])
+    plt.show()
+
+
+def check_naive():
+    datasetdir = '/data/timeseries'
+    split_inter = True
+    all_dataset = _dataset.TimeSeriesAutoEncoderDataset(datasetdir,
+                                                        split_inter=split_inter)
+    train_dataset, test_dataset = all_dataset.get_subdatasets()
+
+    mask = np.array(nib.load('/data/mask/average_optthr.nii').get_data())
+    mask[mask!=0] = 1
+
+    loss = np.zeros((len(test_dataset),))
+    for i, d in enumerate(test_dataset):
+        d = d * mask
+        loss[i] = np.abs(d.ravel()).mean() * d.size / len(mask.ravel().nonzero()[0])
+
+    print(loss.mean()) # 0.283901693217
 
 
 def calcoutpsize(insize, kernel, stride, padding):
@@ -141,4 +318,4 @@ def plotMeanHist():
     plt.show()
 
 if __name__ == '__main__':
-    mask()
+    show_log()
