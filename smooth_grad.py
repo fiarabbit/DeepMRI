@@ -54,8 +54,7 @@ def main():
     feature = model.extract(x)
     assert feature.shape == (batch_size, feature_size, 1, 1, 1)
     feature_coordinate = (0, 0, 0, 0)
-    _feature = feature[[Ellipsis] + list(feature_coordinate)]
-    # _feature = chainer.functions.get_item(feature, [Ellipsis] + list(feature_coordinate))
+    _feature = chainer.functions.sum(chainer.functions.get_item(feature, [Ellipsis] + list(feature_coordinate)))
     _feature.backward()
     filename = 'grad.npz'
     np.savez_compressed(filename, grad=chainer.cuda.to_cpu(x.grad))
