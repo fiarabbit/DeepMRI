@@ -34,8 +34,8 @@ def main():
 
     # preprocessing
     batch_size = args.testBatchsize
-    batch = np.broadcast_to(target_img,
-                            [batch_size] + list(target_img.shape))
+    batch = np.copy(np.broadcast_to(target_img,
+                            [batch_size] + list(target_img.shape)))
     noise_level = 0.2
     sigma = noise_level / (np.max(target_img) - np.min(target_img))
     batch += sigma * np.random.randn(*batch.shape)
