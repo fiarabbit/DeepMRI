@@ -52,8 +52,8 @@ def main():
 
     x = chainer.Variable(batch)
     feature = model.extract(x)
-    assert feature.shape == (batch_size, 1, 1, 1)
-    feature_coordinate = (0, 0, 0)
+    assert feature.shape == (batch_size, feature_size, 1, 1, 1)
+    feature_coordinate = (0, 0, 0, 0)
     _feature = chainer.functions.get_item(feature, [Ellipsis] + list(feature_coordinate))
     _feature.backward()
     filename = 'grad.npz'
