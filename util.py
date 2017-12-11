@@ -12,22 +12,46 @@ import dataset as _dataset
 
 import matplotlib.animation as ani
 
-# def check_naive():
-datasetdir = '/data/timeseries'
-split_inter = True
-all_dataset = _dataset.TimeSeriesAutoEncoderDataset(datasetdir,
-                                                    split_inter=split_inter)
-train_dataset, test_dataset = all_dataset.get_subdatasets()
+# def grad_anim():
+root_dir = 'C:/Users/hashimoto/PycharmProjects/chainer2python3'
+file_path = join(root_dir, 'grad.npz')
+mask_path = join(root_dir, 'average_optthr.nii')
+mask = nib.load(mask_path).get_data()
 
-mask = np.array(nib.load('/data/mask/average_optthr.nii').get_data())
-mask[mask!=0] = 1
+with open(file_path, "rb") as f:
+    data = np.load(f)["grad"]
 
-loss = np.zeros((len(test_dataset),))
-for i, d in enumerate(test_dataset):
-    d = d * mask
-    loss[i] = np.abs(d.ravel()).mean() * d.size / len(mask.ravel().nonzero()[0])
+m = mask * np.abs(data).mean(axis=0)
 
-print(loss.mean()) # 0.283901693217
+for i in range(0, m.shape[2], 1):
+    s = m[:, :, i]
+    if i == 0:
+        fig, axes = plt.subplots(1, 2)
+    axes[0].imshow(mask[:, :, i])
+    im = axes[0].get_images()
+    im[0].set_clim(0, 1)
+    axes[1].imshow(s)
+    im = axes[0].get_images()
+    im[0].set_clim(0, 0.0001)
+    plt.pause(0.05)
+
+
+def check_naive():
+    datasetdir = '/data/timeseries'
+    split_inter = True
+    all_dataset = _dataset.TimeSeriesAutoEncoderDataset(datasetdir,
+                                                        split_inter=split_inter)
+    train_dataset, test_dataset = all_dataset.get_subdatasets()
+
+    mask = np.array(nib.load('/data/mask/average_optthr.nii').get_data())
+    mask[mask!=0] = 1
+
+    loss = np.zeros((len(test_dataset),))
+    for i, d in enumerate(test_dataset):
+        d = d * mask
+        loss[i] = np.abs(d.ravel()).mean() * d.size / len(mask.ravel().nonzero()[0])
+
+    print(loss.mean()) # 0.283901693217
 
 
 def calcoutpsize(insize, kernel, stride, padding):
@@ -141,4 +165,4 @@ def plotMeanHist():
     plt.show()
 
 if __name__ == '__main__':
-    mask()
+    pass

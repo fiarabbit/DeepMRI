@@ -15,7 +15,8 @@ def main():
     parser.add_argument('--gpu', default=-1, type=int)
     parser.add_argument('--datasetdir', default='/data/timeseries')
     parser.add_argument('--testImageIndex', default=0, type=int)
-    parser.add_argument('--testBatchsize', default=64, type=int)
+    parser.add_argument('--testBatchsize', default=128, type=int)
+    parser.add_argument('--nsample', default=128)
     parser.add_argument('--model', nargs=1)
     parser.add_argument('--result', default='feature')
     parser.add_argument('--split_inter', default=True)
@@ -28,9 +29,8 @@ def main():
     test_itr = iterators.SerialIterator(dataset=test_dataset,
                                         batch_size=1,
                                         repeat=False, shuffle=False)
-    target_img = next(test_itr)
-    for i in range(0, args.testImageIndex + 1):
-        target_img = next(test_itr)[0]
+
+    target_img = test_dataset[args.testImageIndex]
 
     # preprocessing
     batch_size = args.testBatchsize
@@ -56,8 +56,8 @@ def main():
     feature_coordinate = (0, 0, 0, 0)
     _feature = chainer.functions.sum(chainer.functions.get_item(feature, [Ellipsis] + list(feature_coordinate)))
     _feature.backward()
-    filename = 'grad.npz'
-    np.savez_compressed(filename, grad=chainer.cuda.to_cpu(x.grad))
+    grad = chainer.cuda.to_cpu(x.grad)
+    model.cleargrads()
 
 if __name__ == '__main__':
     main()
