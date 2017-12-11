@@ -21,6 +21,7 @@ def main():
     parser.add_argument('--result', default='feature')
     parser.add_argument('--split_inter', default=True)
     parser.add_argument('--mask', default='/data/mask/average_optthr.nii')
+    parser.add_argument('--output', default='grad.npz')
     args = parser.parse_args()
 
     all_dataset = _dataset.TimeSeriesAutoEncoderDataset(args.datasetdir,
@@ -57,6 +58,9 @@ def main():
     _feature = chainer.functions.sum(chainer.functions.get_item(feature, [Ellipsis] + list(feature_coordinate)))
     _feature.backward()
     grad = chainer.cuda.to_cpu(x.grad)
+    with open(args.output, "wb") as f:
+        np.savez(f, grad=grad)
+
     model.cleargrads()
 
 if __name__ == '__main__':
