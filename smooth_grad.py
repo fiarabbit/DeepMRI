@@ -34,7 +34,7 @@ def main():
 
     _, test_dataset = all_dataset.get_subdatasets()
 
-    n = time()
+    s = time()
     with open("log.txt", "a") as f:
         print("i,sigma", file=f)
         for i, test_image_index in enumerate(range(len(test_dataset))):
@@ -47,9 +47,8 @@ def main():
             noise_level = 0.2
             sigma = noise_level / (np.max(target_img) - np.min(target_img))
             print("{},{}".format(i, sigma), file=f)
-            p = n
             n = time()
-            print("processing {}/{} image {}s elapsed".format(i+1, len(test_dataset), n-p))
+            print("processing {}/{} image {:.2f}s elapsed".format(i+1, len(test_dataset), s-n))
             batch += sigma * np.random.randn(*batch.shape)
 
             mask = np.array(nib.load(args.mask).get_data(), dtype=np.float32)
