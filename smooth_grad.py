@@ -76,6 +76,7 @@ def main():
                 ave_grad = np.stack(stack_ave_grad)
                 with open(join(args.output, "grad_subject{}.npz".format(i//150)), "wb") as f_subject:
                     np.savez_compressed(f_subject, data=ave_grad)
+                    print("saving {}th subject".format(i//150 + 1))
                 stack_ave_grad=[]
             model.cleargrads()
 
