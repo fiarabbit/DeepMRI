@@ -35,6 +35,7 @@ def main():
     _, test_dataset = all_dataset.get_subdatasets()
 
     s = time()
+    stack_ave_grad = []
     with open("log.txt", "a") as f:
         print("i,sigma", file=f)
         for i, test_image_index in enumerate(range(len(test_dataset))):
@@ -68,9 +69,14 @@ def main():
             _feature = chainer.functions.sum(chainer.functions.get_item(feature, [Ellipsis] + list(feature_coordinate)))
             _feature.backward()
             grad = chainer.cuda.to_cpu(x.grad)
-            with open(join(args.output, "grad_{}.npz".format(i)), "wb") as _f:
-                np.savez_compressed(_f, grad=grad)
+            stack_ave_grad.append(np.copy(mask * np.abs(grad).mean(axis=0)))
+            # with open(join(args.output, "grad_{}.npz".format(i)), "wb") as _f:
+            #     np.savez_compressed(_f, grad=grad)
             model.cleargrads()
+
+    ave_grad = np.stack(stack_ave_grad)
+    with open(join(args.output, "stack_ave_grad.npz"), "wb") as f:
+        np.savez_compressed(f, data=ave_grad)
 
 if __name__ == '__main__':
     main()
