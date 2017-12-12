@@ -7,6 +7,8 @@ import dataset as _dataset
 from chainer import iterators
 
 from argparse import ArgumentParser
+from os.path import join
+from time import time
 
 feature_size = 1000
 
@@ -20,7 +22,7 @@ def main():
     parser.add_argument('--result', default='feature')
     parser.add_argument('--split_inter', default=True)
     parser.add_argument('--mask', default='/data/mask/average_optthr.nii')
-    parser.add_argument('--output', default='grad.npz')
+    parser.add_argument('--output', default='./grad')
     args = parser.parse_args()
 
     all_dataset = _dataset.TimeSeriesAutoEncoderDataset(args.datasetdir,
@@ -32,6 +34,7 @@ def main():
 
     _, test_dataset = all_dataset.get_subdatasets()
 
+    n = time()
     with open("log.txt", "a") as f:
         print("i,sigma", file=f)
         for i, test_image_index in enumerate(range(len(test_dataset))):
@@ -44,7 +47,9 @@ def main():
             noise_level = 0.2
             sigma = noise_level / (np.max(target_img) - np.min(target_img))
             print("{},{}".format(i, sigma), file=f)
-            print("processing {}/{} image".format(i+1, len(test_dataset)))
+            p = n
+            n = time()
+            print("processing {}/{} image {}s elapsed".format(i+1, len(test_dataset), n-p))
             batch += sigma * np.random.randn(*batch.shape)
 
             mask = np.array(nib.load(args.mask).get_data(), dtype=np.float32)
@@ -64,7 +69,7 @@ def main():
             _feature = chainer.functions.sum(chainer.functions.get_item(feature, [Ellipsis] + list(feature_coordinate)))
             _feature.backward()
             grad = chainer.cuda.to_cpu(x.grad)
-            with open("grad_{}.npz".format(i), "wb") as _f:
+            with open(join(args.output, "grad_{}.npz".format(i)), "wb") as _f:
                 np.savez_compressed(_f, grad=grad)
             model.cleargrads()
 
