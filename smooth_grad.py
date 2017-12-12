@@ -34,7 +34,6 @@ def main():
 
     with open("log.txt", "a") as f:
         print("i,sigma", file=f)
-        stack_grad = []
         for i, test_image_index in enumerate(range(len(test_dataset))):
             target_img = test_dataset[test_image_index]
 
@@ -65,12 +64,9 @@ def main():
             _feature = chainer.functions.sum(chainer.functions.get_item(feature, [Ellipsis] + list(feature_coordinate)))
             _feature.backward()
             grad = chainer.cuda.to_cpu(x.grad)
-            stack_grad.append(np.copy(grad))
+            with open("grad_{}.npz".format(i), "wb") as _f:
+                np.savez_compressed(_f, grad=grad)
             model.cleargrads()
-
-    with open(args.output, "wb") as f:
-        np.savez_compressed(f, grads=stack_grad)
-
 
 if __name__ == '__main__':
     main()
