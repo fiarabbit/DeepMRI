@@ -48,7 +48,7 @@ def main():
             sigma = noise_level / (np.max(target_img) - np.min(target_img))
             print("{},{}".format(i, sigma), file=f)
             n = time()
-            print("processing {}/{} image {:.2f}s elapsed".format(i+1, len(test_dataset), s-n))
+            print("processing {}/{} image {:.2f}s elapsed".format(i+1, len(test_dataset), n-s))
             batch += sigma * np.random.randn(*batch.shape)
 
             mask = np.array(nib.load(args.mask).get_data(), dtype=np.float32)
