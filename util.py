@@ -23,9 +23,9 @@ with open(file_path, "rb") as f:
 
 m = mask * np.abs(data).mean(axis=0)
 
-for i in range(0, m.shape[2], 1):
+for i in range(33, 73, 5):
     s = m[:, :, i]
-    if i == 0:
+    if i == 33:
         fig, axes = plt.subplots(1, 2)
     axes[0].imshow(mask[:, :, i])
     im = axes[0].get_images()
@@ -33,7 +33,7 @@ for i in range(0, m.shape[2], 1):
     axes[1].imshow(s)
     im = axes[0].get_images()
     im[0].set_clim(0, 0.0001)
-    plt.pause(0.05)
+    plt.pause(1)
 
 
 def check_naive():
