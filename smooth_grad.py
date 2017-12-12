@@ -72,11 +72,13 @@ def main():
             stack_ave_grad.append(np.copy(mask * np.abs(grad).mean(axis=0)))
             # with open(join(args.output, "grad_{}.npz".format(i)), "wb") as _f:
             #     np.savez_compressed(_f, grad=grad)
+            if i % 150 == 149:
+                ave_grad = np.stack(stack_ave_grad)
+                with open(join(args.output, "grad_subject{}.npz".format(i//150)), "wb") as f_subject:
+                    np.savez_compressed(f_subject, data=ave_grad)
+                stack_ave_grad=[]
             model.cleargrads()
 
-    ave_grad = np.stack(stack_ave_grad)
-    with open(join(args.output, "stack_ave_grad.npz"), "wb") as f:
-        np.savez_compressed(f, data=ave_grad)
 
 if __name__ == '__main__':
     main()
