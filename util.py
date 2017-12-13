@@ -2,38 +2,136 @@ import nibabel as nib
 import numpy as np
 from os import listdir
 from os.path import join
+from nibabel.processing import resample_from_to
 
 import matplotlib
+
 matplotlib.use('Qt5Agg')
 import matplotlib.pyplot as plt
+
 plt.ioff()
 import time
 import dataset as _dataset
 
 import matplotlib.animation as ani
+import json
 
-# def grad_anim():
-root_dir = 'C:/Users/hashimoto/PycharmProjects/chainer2python3'
-file_path = join(root_dir, 'grad.npz')
-mask_path = join(root_dir, 'average_optthr.nii')
-mask = nib.load(mask_path).get_data()
+def imshow_change_data():
+    root_dir = 'C:/Users/hashimoto/PycharmProjects/chainer2python3'
+    mask_path = join(root_dir, 'average_optthr.nii')
+    base_path = join(root_dir, 'average_COBRE148subjects.nii')
 
-with open(file_path, "rb") as f:
-    data = np.load(f)["grad"]
+    mask = nib.load(mask_path).get_data()
+    base = nib.load(base_path).get_data()
 
-m = mask * np.abs(data).mean(axis=0)
 
-for i in range(33, 73, 5):
-    s = m[:, :, i]
-    if i == 33:
-        fig, axes = plt.subplots(1, 2)
-    axes[0].imshow(mask[:, :, i])
-    im = axes[0].get_images()
-    im[0].set_clim(0, 1)
-    axes[1].imshow(s)
-    im = axes[0].get_images()
-    im[0].set_clim(0, 0.0001)
-    plt.pause(1)
+
+
+def grad_correlation():
+    root_dir = 'C:/Users/hashimoto/PycharmProjects/chainer2python3'
+    mask_path = join(root_dir, 'average_optthr.nii')
+    base_path = join(root_dir, 'average_COBRE148subjects.nii')
+
+    mask = nib.load(mask_path).get_data()
+    base = nib.load(base_path).get_data()
+
+    assert isinstance(mask, np.ndarray)
+    assert isinstance(base, np.ndarray)
+    assert mask.shape == (91, 109, 91)
+    assert base.shape == (91, 109, 91)
+
+    for i_subject in range(0,29,1):
+        file_path = join(root_dir, 'grad_subject{}.npz'.format(i_subject))
+        with open(file_path, "rb") as f:
+            d = np.load(f)["data"]
+            assert isinstance(d, np.ndarray)
+            assert d.shape == (91, 109, 91, 150)
+            # d = np.arange(91*109*91*150).reshape([91, 109, 91, 150])
+            d_valid = d[mask.nonzero()]
+            assert d_valid.shape[1] == 150
+
+            cov = np.corrcoef(d_valid)
+            pearson_correlation = np.diag(cov)
+            assert len(pearson_correlation) == len(mask.nonzero())
+
+            d_corr = np.zeros(d.shape[:-1])
+            d_corr[mask.nonzero()] = pearson_correlation
+
+    # plot
+    exit()
+    z_list = [33, 38, 43, 48, 53, 58, 63, 68]
+
+    for z in z_list:
+        fig, ax = plt.subplots(1, 1)
+        ax.imshow(base[:, :, z], cmap="gray")
+        ax.imshow(d[:, :, z], cmap="hot", alpha=0.6)
+        ax.get_images().set_clim(0, 1)
+        plt.show()
+
+
+def grad_anim():
+    root_dir = 'C:/Users/hashimoto/PycharmProjects/chainer2python3'
+    file_path = join(root_dir, 'grad.npz')
+    mask_path = join(root_dir, 'average_optthr.nii')
+    base_path = join(root_dir, 'average_COBRE148subjects.nii')
+
+    mask = nib.load(mask_path).get_data()
+    base = nib.load(base_path).get_data()
+    print(base.shape)
+    with open(file_path, "rb") as f:
+        data = np.load(f)["grad"]
+
+    m = mask * np.abs(data).mean(axis=0)
+
+    for i in range(33, 73, 5):
+        s = m[:, :, i]
+        if i == 33:
+            fig, axes = plt.subplots(1, 1)
+            if not hasattr(axes, '__getitem__'):
+                axes = [axes]
+        axes[0].imshow(base[:, :, i], cmap='gray')
+        axes[0].imshow(s, cmap='hot', alpha=0.6)
+        im = axes[0].get_images()
+        im[0].set_clim(0, 1)
+        plt.pause(1)
+
+def plot_loss():
+    root_dir = 'C:/Users/hashimoto/PycharmProjects/chainer2python3'
+    file_path = join(root_dir, 'log')
+    with open(file_path, "r") as f:
+        data_list = json.load(f)
+
+    print(data_list[0].keys())
+
+    main_loss = []
+    validation_loss = []
+    iteration = []
+    for i, item in enumerate(data_list):
+        main_loss.append(item['main/loss'])
+        validation_loss.append(item['validation/main/loss'])
+        iteration.append(item['iteration'])
+
+    fig, ax = plt.subplots(1, 1)
+    fig.set_size_inches(10, 3)
+    ax.plot(iteration[2:], main_loss[2:])
+    ax.plot(iteration[2:], validation_loss[2:])
+    plt.show()
+
+def feature_analysis():
+    root_dir = 'C:/Users/hashimoto/PycharmProjects/chainer2python3'
+    file_path = join(root_dir, 'feature.npz')
+    mask_path = join(root_dir, 'average_optthr.nii')
+
+    with open(file_path, "rb") as f:
+        feature = np.load(f)["data"].squeeze()
+        print(feature.shape)
+
+    fig, ax = plt.subplots(1, 1)
+    fig.set_size_inches(10, 3)
+    for s in range(0, 3, 1):
+        d_s = feature[150 * s:150 * (s + 1)]
+        ax.plot(list(range(0, 150)), d_s[:, 0].squeeze())
+    plt.show()
 
 
 def check_naive():
@@ -44,18 +142,19 @@ def check_naive():
     train_dataset, test_dataset = all_dataset.get_subdatasets()
 
     mask = np.array(nib.load('/data/mask/average_optthr.nii').get_data())
-    mask[mask!=0] = 1
+    mask[mask != 0] = 1
 
     loss = np.zeros((len(test_dataset),))
     for i, d in enumerate(test_dataset):
         d = d * mask
-        loss[i] = np.abs(d.ravel()).mean() * d.size / len(mask.ravel().nonzero()[0])
+        loss[i] = np.abs(d.ravel()).mean() * d.size / len(
+            mask.ravel().nonzero()[0])
 
-    print(loss.mean()) # 0.283901693217
+    print(loss.mean())  # 0.283901693217
 
 
 def calcoutpsize(insize, kernel, stride, padding):
-    return (input+2*padding-kernel)/stride+1
+    return (input + 2 * padding - kernel) / stride + 1
 
 
 def anim():
@@ -77,35 +176,48 @@ def anim():
         plt.pause(0.5)
 
 
-def mask():
-    # h = nib.load('average_COBRE148subjects.nii')
-    h = nib.load('subject06204_swaurest.nii')
-    d = h.dataobj
+def imshow_mask():
+    # _from = nib.load('TPM.nii')
+    # print(_from.shape)
+    h = nib.load('average_COBRE148subjects.nii')
+    # h = nib.load('subject06204_swaurest.nii')
+    # h = resample_from_to(_from, _to)
+    # h = _from
+    print(h.shape)
+    # [gray, white, cfs, skull, scalp, other]
+    d = h.get_data()
+    print(d.min(), d.max())
     frame = 0
-    f = d[:, :, :, frame]
-    # f = d
+    # f = d[:, :, :, frame]
+    f = d
+
     class AnimationFunc:
         s = 0
         im = None
+
         def __init__(self, img_3d):
             self.img_3d = img_3d
 
         def __call__(self):
-            img_2d = self.img_3d[:, :, self.s]
+            if self.s < self.img_3d.shape[2]:
+                img_2d = self.img_3d[:, :, self.s]
+            else:
+                print("exit")
+                exit()
+
             print(img_2d.max())
             if self.s == 0:
-                self.im = plt.imshow(img_2d)
-                self.im.set_clim(0,2000)
+                self.im = plt.imshow(img_2d, cmap='gray')
+                self.im.set_clim(0, 1)
             elif self.s > 0:
                 self.im.set_data(img_2d)
             plt.pause(0.1)
             self.s += 1
             print(self.s)
+
     a = AnimationFunc(f)
     while True:
         a()
-
-
 
 
 def calcHist():
@@ -115,7 +227,7 @@ def calcHist():
     len_frames = 150
     h = np.histogram(np.hstack(
         [nib.load(join(datasetdir, files[l])).dataobj for l in range(5)]),
-                     bins=100)
+        bins=100)
     b = h[1].copy()
     np.savez('bin.npz', b=b)
     h_list = []
@@ -125,6 +237,7 @@ def calcHist():
                 0])
         np.savez('histogram.npz', h_list=h_list)
         print(h_list)
+
 
 def test_calcHist():
     datasetdir = '/data/timeseries'
@@ -143,16 +256,19 @@ def plotHist():
     b = np.load('bin.npz')['b']
     s = h_list.sum(axis=0)
     fig, ax = plt.subplots()
-    ax.set_xlim(-2,2)
+    ax.set_xlim(-2, 2)
+
     class Anime():
-        k=0
+        k = 0
+
         def __call__(self, i):
             if self.k == 0:
                 self.p = ax.bar(b[0:-1], h_list[0, :])
-            elif self.k<h_list.shape[0]:
+            elif self.k < h_list.shape[0]:
                 for i, n in enumerate(self.p):
                     n.set_height(h_list[self.k, i])
-            self.k+=1
+            self.k += 1
+
     a = Anime()
     anim = ani.FuncAnimation(fig, a)
     plt.show()
@@ -164,5 +280,6 @@ def plotMeanHist():
     plt.hist(meanArr)
     plt.show()
 
+
 if __name__ == '__main__':
-    pass
+    grad_correlation()

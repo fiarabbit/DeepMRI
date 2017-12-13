@@ -84,8 +84,8 @@ class ThreeDimensionalAutoEncoder(chainer.Chain):
             exit()
 
         _shape.insert(1, 1)  # specify # of first channel
-
-        c0 = F.reshape(x, tuple(_shape))
+        x_masked = F.scale(x, self.mask, axis=1)
+        c0 = F.reshape(x_masked, tuple(_shape))
         c1 = F.relu(self.bnc1(self.conv1(c0)))
         c2 = F.relu(self.bnc2(self.conv2(c1)))
         c3 = F.relu(self.bnc3(self.conv3(c2)))
