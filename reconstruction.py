@@ -9,11 +9,12 @@ from chainer import iterators
 from argparse import ArgumentParser
 from os.path import join
 
+
 def main():
     parser = ArgumentParser()
     parser.add_argument('--gpu', default=-1, type=int)
     parser.add_argument('--datasetdir', default='/data/timeseries')
-    parser.add_argument('--testBatchsize', default=64)
+    parser.add_argument('--testBatchsize', default=1)
     parser.add_argument('--model', nargs=1)
     parser.add_argument('--output', default='./feature')
     parser.add_argument('--split_inter', default=True)
@@ -40,26 +41,28 @@ def main():
         return chainer.dataset.concat_examples(_batch, device=args.gpu)
 
     tmp = chainer.cuda.to_cpu(model.extract(converter(next(test_itr))).data)
-    stack = np.zeros([len(test_dataset)] + list(tmp.shape[1:]),
-                     dtype=np.float32)
+    y_stack = np.zeros([150] + list(tmp.shape[1:]), dtype=np.float32)
+    diff_stack = np.zeros([150] + list(tmp.shape[1:]), dtype=np.float32)
     test_itr.reset()
 
     i = 0
-    while True:
+    while i < 150:
         try:
             start_idx = i * args.testBatchsize
             end_idx = np.min([(i + 1) * args.testBatchsize, len(test_dataset)])
             print("{}...{}/{}".format(start_idx, end_idx, len(test_dataset)))
             _batch = next(test_itr)
             batch = converter(_batch)
-            y_batch = model.calc(batch)
-            feature = chainer.cuda.to_cpu(model.extract(batch).data)
-            stack[start_idx:end_idx, :] = feature
+            y = model.calc(batch)
+            y_masked = chainer.functions.scale(y, mask, axis=1)
+            y_stack[start_idx:end_idx, :, :, :] = chainer.cuda.to_cpu(y_masked.data)
+            diff = y - y_masked
+            diff_stack[start_idx:end_idx, :, :, :] = chainer.cuda.to_cpu(diff.data)
             i += 1
         except StopIteration:
             break
 
-    np.savez_compressed(join(args.output, 'feature.npz'), data=stack)
+    np.savez_compressed(join(args.output, 'reconstruction.npz'), y=y_stack, diff=diff_stack)
 
 
 if __name__ == '__main__':
