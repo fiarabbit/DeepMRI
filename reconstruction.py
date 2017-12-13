@@ -16,7 +16,7 @@ def main():
     parser.add_argument('--datasetdir', default='/data/timeseries')
     parser.add_argument('--testBatchsize', default=1)
     parser.add_argument('--model', nargs=1)
-    parser.add_argument('--output', default='./feature')
+    parser.add_argument('--output', default='./reconstruction')
     parser.add_argument('--split_inter', default=True)
     parser.add_argument('--mask', default='/data/mask/average_optthr.nii')
     args = parser.parse_args()
