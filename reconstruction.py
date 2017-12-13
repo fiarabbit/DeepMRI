@@ -40,9 +40,8 @@ def main():
     def converter(_batch):
         return chainer.dataset.concat_examples(_batch, device=args.gpu)
 
-    tmp = chainer.cuda.to_cpu(model.extract(converter(next(test_itr))).data)
-    y_stack = np.zeros([150] + list(tmp.shape[1:]), dtype=np.float32)
-    diff_stack = np.zeros([150] + list(tmp.shape[1:]), dtype=np.float32)
+    y_stack = np.zeros([150, 91, 109, 91], dtype=np.float32)
+    diff_stack = np.zeros([150, 91, 109, 91], dtype=np.float32)
     test_itr.reset()
 
     i = 0
