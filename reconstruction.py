@@ -53,6 +53,7 @@ def main():
             print("{}...{}/{}".format(start_idx, end_idx, len(test_dataset)))
             _batch = next(test_itr)
             batch = converter(_batch)
+            batch_masked = chainer.functions.scale(batch, model.mask, axis=1)
             y = model.calc(batch)
             y_masked = chainer.functions.scale(y, model.mask, axis=1)
             y_stack[start_idx:end_idx, :, :, :] = chainer.cuda.to_cpu(y_masked.data)
