@@ -7,7 +7,7 @@ import dataset as _dataset
 from chainer import iterators
 
 from argparse import ArgumentParser
-
+from os.path import join
 
 def main():
     parser = ArgumentParser()
@@ -15,7 +15,7 @@ def main():
     parser.add_argument('--datasetdir', default='/data/timeseries')
     parser.add_argument('--testBatchsize', default=64)
     parser.add_argument('--model', nargs=1)
-    parser.add_argument('--result', default='feature')
+    parser.add_argument('--output', default='./feature')
     parser.add_argument('--split_inter', default=True)
     parser.add_argument('--mask', default='/data/mask/average_optthr.nii')
     args = parser.parse_args()
@@ -58,7 +58,7 @@ def main():
         except StopIteration:
             break
 
-    np.savez_compressed('feature.npz', data=stack)
+    np.savez_compressed(join(args.output, 'feature.npz'), data=stack)
 
 
 if __name__ == '__main__':
