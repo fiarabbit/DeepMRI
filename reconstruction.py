@@ -14,7 +14,7 @@ def main():
     parser = ArgumentParser()
     parser.add_argument('--gpu', default=-1, type=int)
     parser.add_argument('--datasetdir', default='/data/timeseries')
-    parser.add_argument('--testBatchsize', default=1)
+    parser.add_argument('--testBatchsize', default=150)
     parser.add_argument('--model', nargs=1)
     parser.add_argument('--output', default='./reconstruction')
     parser.add_argument('--split_inter', default=True)
@@ -44,25 +44,24 @@ def main():
     diff_stack = np.zeros([150, 91, 109, 91], dtype=np.float32)
     test_itr.reset()
 
-    i = 0
-    while i < 150:
+    i_sub = 0
+    while True:
         try:
-            start_idx = i * args.testBatchsize
-            end_idx = np.min([(i + 1) * args.testBatchsize, len(test_dataset)])
-            print("{}...{}/{}".format(start_idx, end_idx, len(test_dataset)))
+            print("{}/{}".format(i_sub, len(test_dataset)))
             _batch = next(test_itr)
             batch = converter(_batch)
             batch_masked = chainer.functions.scale(batch, model.mask, axis=1)
             y = model.calc(batch_masked)
             y_masked = chainer.functions.scale(y, model.mask, axis=1)
-            y_stack[start_idx:end_idx, :, :, :] = chainer.cuda.to_cpu(y_masked.data)
+            y_stack[:, :, :, :] = chainer.cuda.to_cpu(y_masked.data)
             diff = y - y_masked
-            diff_stack[start_idx:end_idx, :, :, :] = chainer.cuda.to_cpu(diff.data)
-            i += 1
+            diff_stack[:, :, :, :] = chainer.cuda.to_cpu(diff.data)
+            np.savez_compressed(
+                join(args.output, 'reconstruction_subject{}.npz').format(
+                    i_sub), y=y_stack, diff=diff_stack)
+            i_sub += 1
         except StopIteration:
             break
-
-    np.savez_compressed(join(args.output, 'reconstruction.npz'), y=y_stack, diff=diff_stack)
 
 
 if __name__ == '__main__':
