@@ -53,7 +53,7 @@ def main():
             _batch = next(test_itr)
             batch = converter(_batch)
             batch_masked = chainer.functions.scale(batch, model.mask, axis=1)
-            y = model.calc(batch)
+            y = model.calc(batch_masked)
             y_masked = chainer.functions.scale(y, model.mask, axis=1)
             y_stack[start_idx:end_idx, :, :, :] = chainer.cuda.to_cpu(y_masked.data)
             diff = y - y_masked
