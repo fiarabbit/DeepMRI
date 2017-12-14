@@ -44,6 +44,7 @@ def imshow_change_data():
                 ax.imshow(x_2d, cmap='hot', alpha=0.6)
                 ax.get_images.set_clim([0, 1])
 
+
 def grad_correlation_inter_subject():
     root_dir_d = '/efs/replication_1000channel/DeepMRI/grad/'
     root_dir = '/data/mask'
