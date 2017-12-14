@@ -48,7 +48,9 @@ def imshow_change_data():
 
 
 def grad_correlation():
-    root_dir = 'C:/Users/hashimoto/PycharmProjects/chainer2python3'
+    root_dir_d =  '/efs/replication_1000channel/DeepMRI/grad/'
+    root_dir = '/data/mask'
+
     mask_path = join(root_dir, 'average_optthr.nii')
     base_path = join(root_dir, 'average_COBRE148subjects.nii')
 
@@ -60,22 +62,38 @@ def grad_correlation():
     assert mask.shape == (91, 109, 91)
     assert base.shape == (91, 109, 91)
 
-    for i_subject in range(0, 29, 1):
-        file_path = join(root_dir, 'grad_subject{}.npz'.format(i_subject))
+    tmp_corr = []
+    for i_subject in range(0,29,1):
+        file_path = join(root_dir_d, 'grad_subject{}.npz'.format(i_subject))
         with open(file_path, "rb") as f:
             d = np.load(f)["data"]
             assert isinstance(d, np.ndarray)
-            assert d.shape == (91, 109, 91, 150)
+            try:
+                assert d.shape == (150, 91, 109, 91)
+            except AssertionError:
+                print(d.shape)
+                exit()
             # d = np.arange(91*109*91*150).reshape([91, 109, 91, 150])
+            d = np.moveaxis(d, 0, -1)
+            try:
+                assert d.shape == (91, 109, 91, 150)
+            except AssertionError:
+                print(d.shape)
+                exit()
             d_valid = d[mask.nonzero()]
-            assert d_valid.shape[1] == 150
+            assert d_valid.shape == (150350, 150)
 
-            cov = np.corrcoef(d_valid)
-            pearson_correlation = np.diag(cov)
-            assert len(pearson_correlation) == len(mask.nonzero())
-
-            d_corr = np.zeros(d.shape[:-1])
-            d_corr[mask.nonzero()] = pearson_correlation
+            r = np.zeros([150, 150])
+            for sample_1 in range(150):
+                grad_1 = d_valid[:, sample_1]
+                for sample_2 in range(sample_1):
+                    grad_2 = d_valid[:, sample_2]
+                    c = np.cov(np.vstack([grad_1, grad_2]))
+                    r[sample_1,sample_2] = c[0,1]/np.sqrt(c[0,0]*c[1,1])
+            tmp_corr.append(r.sum()/np.count_nonzero(r))
+    with open("tmpcorr.npz","wb") as _f:
+        np.savez_compressed(_f, data=tmp_corr)
+    print(tmp_corr.mean())
 
     # plot
     exit()
@@ -312,4 +330,4 @@ def plotMeanHist():
 
 
 if __name__ == '__main__':
-    feature_analysis()
+    grad_correlation()
