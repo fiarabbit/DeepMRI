@@ -25,8 +25,13 @@ def imshow_change_data():
     mask = nib.load(mask_path).get_data()
     base = nib.load(base_path).get_data()
 
-    x = np.arange(91 * 109 * 91 * 150).reshape([91, 109, 91, 150])
-    y = x + np.random.rand(x.shape)
+    with open(join(root_dir, "reconstruction_subject0.npz")) as f:
+        d = np.load(f)
+        y = d["y"]
+        diff = d["diff"]
+
+    # x = np.arange(91 * 109 * 91 * 150).reshape([91, 109, 91, 150])
+    # y = x + np.random.rand(x.shape)
 
     z_list = [33, 38, 43, 48, 53, 58, 63, 68]
 
@@ -371,4 +376,4 @@ def plotMeanHist():
 
 
 if __name__ == '__main__':
-    grad_correlation()
+    grad_correlation_inter_subject()

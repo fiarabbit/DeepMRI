@@ -54,7 +54,7 @@ def main():
             y = model.calc(batch_masked)
             y_masked = chainer.functions.scale(y, model.mask, axis=1)
             y_stack[:, :, :, :] = chainer.cuda.to_cpu(y_masked.data)
-            diff = y - y_masked
+            diff = batch_masked - y_masked
             diff_stack[:, :, :, :] = chainer.cuda.to_cpu(diff.data)
             np.savez_compressed(
                 join(args.output, 'reconstruction_subject{}.npz').format(
