@@ -17,6 +17,52 @@ import matplotlib.animation as ani
 import json
 
 
+def data_correlation():
+    root_dir_d = '/data/timeseries'
+    root_dir = '/data/mask'
+
+    subjects = ['099', '123', '093', '047', '026', '147', '039', '022', '072', '064', '053', '009', '129', '031', '018', '065', '001', '003', '071', '024', '030', '102', '017', '139', '074', '020', '070', '103', '092', '087', '073', '110', '084', '034', '136', '005', '119', '105', '098', '146', '029', '051', '004', '121', '008', '138', '112', '133', '097', '044', '055', '088', '125', '108', '007', '085', '045', '130', '028', '081', '014', '080', '131', '104', '140', '079', '013', '132', '048', '040', '082', '061', '058', '086', '068', '095', '075', '010', '122', '056', '046', '090', '113', '049', '067', '012', '137', '033', '038', '141', '054', '052', '041', '124', '101', '142', '118', '062', '021', '066', '109', '037', '019', '126', '096', '115', '100', '120', '083', '002', '032', '106', '145', '023', '107', '059', '063', '025', '011', '134', '027', '077', '089', '060', '035', '127', '057', '094', '128', '050', '036', '091', '006', '143', '116', '042', '144', '111', '117', '148', '016', '069', '078', '015', '114', '043', '135']
+
+    mask_path = join(root_dir, 'average_optthr.nii')
+    base_path = join(root_dir, 'average_COBRE148subjects.nii')
+
+    mask = nib.load(mask_path).get_data()
+    base = nib.load(base_path).get_data()
+
+    assert isinstance(mask, np.ndarray)
+    assert isinstance(base, np.ndarray)
+    assert mask.shape == (91, 109, 91)
+    assert base.shape == (91, 109, 91)
+
+    tmp_corr = []
+    for subject in subjects:
+        file_path = join(root_dir_d, 'niftiDATA_Subject{}_Condition000.nii'.format(subject))
+        d = nib.load(file_path).get_data()
+        assert isinstance(d, np.ndarray)
+        try:
+            assert d.shape == (91, 109, 91, 150)
+        except AssertionError:
+            print(d.shape)
+            exit()
+        d_valid = d[mask.nonzero()]
+        assert d_valid.shape == (150350, 150)
+
+        r = np.zeros([150, 150])
+        for sample_1 in range(150):
+            bold_1 = d_valid[:, sample_1]
+            for sample_2 in range(sample_1):
+                bold_2 = d_valid[:, sample_2]
+                c = np.cov(np.vstack([bold_1, bold_2]))
+                r[sample_1, sample_2] = c[0, 1] / np.sqrt(
+                    c[0, 0] * c[1, 1])
+        tmp_corr.append(r.sum() / np.count_nonzero(r))
+    with open("tmpcorr_bold.npz", "wb") as _f:
+        np.savez_compressed(_f, data=tmp_corr)
+    print(np.mean(tmp_corr))
+
+    # plot
+    exit()
+
 def imshow_change_data():
     root_dir = 'C:/Users/hashimoto/PycharmProjects/chainer2python3'
     mask_path = join(root_dir, 'average_optthr.nii')
