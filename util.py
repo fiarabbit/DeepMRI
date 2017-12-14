@@ -44,6 +44,47 @@ def imshow_change_data():
                 ax.imshow(x_2d, cmap='hot', alpha=0.6)
                 ax.get_images.set_clim([0, 1])
 
+def grad_correlation_inter_subject():
+    root_dir_d = '/efs/replication_1000channel/DeepMRI/grad/'
+    root_dir = '/data/mask'
+
+    mask_path = join(root_dir, 'average_optthr.nii')
+    base_path = join(root_dir, 'average_COBRE148subjects.nii')
+
+    mask = nib.load(mask_path).get_data()
+    base = nib.load(base_path).get_data()
+
+    assert isinstance(mask, np.ndarray)
+    assert isinstance(base, np.ndarray)
+    assert mask.shape == (91, 109, 91)
+    assert base.shape == (91, 109, 91)
+    d_valid_mean_stack = []
+    for i_subject in range(0, 29, 1):
+        file_path = join(root_dir_d, 'grad_subject{}.npz'.format(i_subject))
+        with open(file_path, "rb") as f:
+            d = np.load(f)["data"]
+            assert isinstance(d, np.ndarray)
+            try:
+                assert d.shape == (150, 91, 109, 91)
+            except AssertionError:
+                print(d.shape)
+                exit()
+            # d = np.arange(91*109*91*150).reshape([91, 109, 91, 150])
+            d = np.moveaxis(d, 0, -1)
+            try:
+                assert d.shape == (91, 109, 91, 150)
+            except AssertionError:
+                print(d.shape)
+                exit()
+            d_valid = d[mask.nonzero()]
+            assert d_valid.shape == (150350, 150)
+            d_valid_mean = np.mean(d_valid, axis=1)
+            d_valid_mean_stack.append(d_valid_mean)
+    d_valid_mean_stack = np.stack(d_valid_mean_stack)
+    assert d_valid_mean_stack.shape == (29, 150350)
+    r = np.corrcoef(d_valid_mean_stack)
+    print(r)
+
 
 def grad_correlation():
     root_dir_d = '/efs/replication_1000channel/DeepMRI/grad/'
