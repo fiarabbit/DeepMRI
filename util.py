@@ -41,7 +41,8 @@ def grad_correlation():
     assert isinstance(base, np.ndarray)
     assert mask.shape == (91, 109, 91)
     assert base.shape == (91, 109, 91)
-
+    
+    tmp_corr = []
     for i_subject in range(0,29,1):
         file_path = join(root_dir_d, 'grad_subject{}.npz'.format(i_subject))
         with open(file_path, "rb") as f:
@@ -69,12 +70,11 @@ def grad_correlation():
                     grad_2 = d_valid[:, sample_2]
                     c = np.cov(np.vstack([grad_1, grad_2]))
                     r[sample_1,sample_2] = c[0,1]/np.sqrt(c[0,0]*c[1,1])
-            print(r.sum()/np.count_nonzero(r))
-            r += r.T
-            r += np.eye(r.shape[0])
-            print(r)
-            exit()
-
+            tmp_corr.append(r.sum()/np.count_nonzero(r))
+    with open("tmpcorr.npz","wb") as _f:
+        np.savez_compressed(_f, data=tmp_corr)
+    print(tmp_corr.mean())
+            
     # plot
     exit()
     z_list = [33, 38, 43, 48, 53, 58, 63, 68]
