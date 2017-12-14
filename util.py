@@ -16,6 +16,7 @@ import dataset as _dataset
 import matplotlib.animation as ani
 import json
 
+
 def imshow_change_data():
     root_dir = 'C:/Users/hashimoto/PycharmProjects/chainer2python3'
     mask_path = join(root_dir, 'average_optthr.nii')
@@ -23,6 +24,25 @@ def imshow_change_data():
 
     mask = nib.load(mask_path).get_data()
     base = nib.load(base_path).get_data()
+
+    x = np.arange(91 * 109 * 91 * 150).reshape([91, 109, 91, 150])
+    y = x + np.random.rand(x.shape)
+
+    z_list = [33, 38, 43, 48, 53, 58, 63, 68]
+
+    for z in z_list:
+        x_2d = x[:, :, :, z]
+        y_2d = y[:, :, :, z]
+        x_masked = x_2d * mask
+        y_masked = y_2d * mask
+        diff = y_masked - x_masked
+        fig, axes = plt.subplots(1, 3)
+        for i, ax in enumerate(axes):
+            ax.imshow(base, cmap='gray')
+            ax.set_clim([0, 1])
+            if i == 1:
+                ax.imshow(x_2d, cmap='hot', alpha=0.6)
+                ax.get_images.set_clim([0, 1])
 
 
 
@@ -40,7 +60,7 @@ def grad_correlation():
     assert mask.shape == (91, 109, 91)
     assert base.shape == (91, 109, 91)
 
-    for i_subject in range(0,29,1):
+    for i_subject in range(0, 29, 1):
         file_path = join(root_dir, 'grad_subject{}.npz'.format(i_subject))
         with open(file_path, "rb") as f:
             d = np.load(f)["data"]
@@ -95,6 +115,7 @@ def grad_anim():
         im[0].set_clim(0, 1)
         plt.pause(1)
 
+
 def plot_loss():
     root_dir = 'C:/Users/hashimoto/PycharmProjects/chainer2python3'
     file_path = join(root_dir, 'log')
@@ -117,6 +138,7 @@ def plot_loss():
     ax.plot(iteration[2:], validation_loss[2:])
     plt.show()
 
+
 def feature_analysis():
     root_dir = 'C:/Users/hashimoto/PycharmProjects/chainer2python3'
     file_path = join(root_dir, 'feature.npz')
@@ -130,8 +152,16 @@ def feature_analysis():
     fig.set_size_inches(10, 3)
     for s in range(0, 3, 1):
         d_s = feature[150 * s:150 * (s + 1)]
-        ax.plot(list(range(0, 150)), d_s[:, 0].squeeze())
+        ax.plot(list(range(0, 150)), d_s[:, 1].squeeze())
+        ax.set_ylim([-0.13, 0.13])
     plt.show()
+    # s = 0
+    # d_s = feature[150 * s:150 * (s + 1)]
+    # ax.plot(list(range(0, 150)), d_s[:, 0].squeeze())
+    # ax.plot(list(range(0, 150)), d_s[:, 1].squeeze())
+    # ax.plot(list(range(0, 150)), d_s[:, 2].squeeze())
+    # ax.set_ylim([-0.13, 0.13])
+    # plt.show()
 
 
 def check_naive():
@@ -282,4 +312,4 @@ def plotMeanHist():
 
 
 if __name__ == '__main__':
-    grad_correlation()
+    feature_analysis()
