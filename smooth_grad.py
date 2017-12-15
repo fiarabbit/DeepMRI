@@ -23,7 +23,7 @@ def main():
     parser.add_argument('--split_inter', default=True)
     parser.add_argument('--mask', default='/data/mask/average_optthr.nii')
     parser.add_argument('--output', default='./grad')
-    parser.add_argument('--feature', default=0)
+    parser.add_argument('--feature', default=0, type=int)
     args = parser.parse_args()
 
     all_dataset = _dataset.TimeSeriesAutoEncoderDataset(args.datasetdir,
@@ -75,7 +75,7 @@ def main():
             #     np.savez_compressed(_f, grad=grad)
             if i % 150 == 149:
                 ave_grad = np.stack(stack_ave_grad)
-                with open(join(args.output, "grad_subject{}.npz".format(i//150)), "wb") as f_subject:
+                with open(join(args.output, "grad_subject{}_feature{}.npz".format(i//150, args.feature)), "wb") as f_subject:
                     np.savez_compressed(f_subject, data=ave_grad)
                     print("saving {}th subject".format(i//150 + 1))
                 stack_ave_grad=[]

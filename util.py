@@ -100,7 +100,8 @@ def imshow_change_data():
         y = d["y"]
         diff = d["diff"]
 
-    with open(join(root_dir, "grad_subject{}.npz".format(subject)), "rb") as f:
+    feature = 0
+    with open(join(root_dir, "grad_subject{}_feature{}.npz".format(subject, feature)), "rb") as f:
         d = np.load(f)
         grad = d["data"]
 
@@ -201,8 +202,9 @@ def grad_correlation_inter_subject():
     assert mask.shape == (91, 109, 91)
     assert base.shape == (91, 109, 91)
     d_valid_mean_stack = []
+    feature = 0
     for i_subject in range(0, 29, 1):
-        file_path = join(root_dir_d, 'grad_subject{}.npz'.format(i_subject))
+        file_path = join(root_dir_d, 'grad_subject{}_feature{}.npz'.format(i_subject, feature))
         with open(file_path, "rb") as f:
             d = np.load(f)["data"]
             assert isinstance(d, np.ndarray)
@@ -244,8 +246,9 @@ def grad_correlation():
     assert base.shape == (91, 109, 91)
 
     tmp_corr = []
+    feature = 0
     for i_subject in range(0, 29, 1):
-        file_path = join(root_dir_d, 'grad_subject{}.npz'.format(i_subject))
+        file_path = join(root_dir_d, 'grad_subject{}_feature{}.npz'.format(i_subject, feature))
         with open(file_path, "rb") as f:
             d = np.load(f)["data"]
             assert isinstance(d, np.ndarray)
