@@ -16,12 +16,30 @@ import dataset as _dataset
 import matplotlib.animation as ani
 import json
 
+from matplotlib.colors import Normalize
+
 
 def data_correlation():
     root_dir_d = '/data/timeseries'
     root_dir = '/data/mask'
 
-    subjects = ['099', '123', '093', '047', '026', '147', '039', '022', '072', '064', '053', '009', '129', '031', '018', '065', '001', '003', '071', '024', '030', '102', '017', '139', '074', '020', '070', '103', '092', '087', '073', '110', '084', '034', '136', '005', '119', '105', '098', '146', '029', '051', '004', '121', '008', '138', '112', '133', '097', '044', '055', '088', '125', '108', '007', '085', '045', '130', '028', '081', '014', '080', '131', '104', '140', '079', '013', '132', '048', '040', '082', '061', '058', '086', '068', '095', '075', '010', '122', '056', '046', '090', '113', '049', '067', '012', '137', '033', '038', '141', '054', '052', '041', '124', '101', '142', '118', '062', '021', '066', '109', '037', '019', '126', '096', '115', '100', '120', '083', '002', '032', '106', '145', '023', '107', '059', '063', '025', '011', '134', '027', '077', '089', '060', '035', '127', '057', '094', '128', '050', '036', '091', '006', '143', '116', '042', '144', '111', '117', '148', '016', '069', '078', '015', '114', '043', '135']
+    subjects = ['099', '123', '093', '047', '026', '147', '039', '022', '072',
+                '064', '053', '009', '129', '031', '018', '065', '001', '003',
+                '071', '024', '030', '102', '017', '139', '074', '020', '070',
+                '103', '092', '087', '073', '110', '084', '034', '136', '005',
+                '119', '105', '098', '146', '029', '051', '004', '121', '008',
+                '138', '112', '133', '097', '044', '055', '088', '125', '108',
+                '007', '085', '045', '130', '028', '081', '014', '080', '131',
+                '104', '140', '079', '013', '132', '048', '040', '082', '061',
+                '058', '086', '068', '095', '075', '010', '122', '056', '046',
+                '090', '113', '049', '067', '012', '137', '033', '038', '141',
+                '054', '052', '041', '124', '101', '142', '118', '062', '021',
+                '066', '109', '037', '019', '126', '096', '115', '100', '120',
+                '083', '002', '032', '106', '145', '023', '107', '059', '063',
+                '025', '011', '134', '027', '077', '089', '060', '035', '127',
+                '057', '094', '128', '050', '036', '091', '006', '143', '116',
+                '042', '144', '111', '117', '148', '016', '069', '078', '015',
+                '114', '043', '135']
 
     mask_path = join(root_dir, 'average_optthr.nii')
     base_path = join(root_dir, 'average_COBRE148subjects.nii')
@@ -36,7 +54,9 @@ def data_correlation():
 
     tmp_corr = []
     for subject in subjects:
-        file_path = join(root_dir_d, 'niftiDATA_Subject{}_Condition000.nii'.format(subject))
+        file_path = join(root_dir_d,
+                         'niftiDATA_Subject{}_Condition000.nii'.format(
+                             subject))
         d = nib.load(file_path).get_data()
         assert isinstance(d, np.ndarray)
         try:
@@ -63,6 +83,7 @@ def data_correlation():
     # plot
     exit()
 
+
 def imshow_change_data():
     root_dir = 'C:/Users/hashimoto/PycharmProjects/chainer2python3'
     mask_path = join(root_dir, 'average_optthr.nii')
@@ -71,29 +92,98 @@ def imshow_change_data():
     mask = nib.load(mask_path).get_data()
     base = nib.load(base_path).get_data()
 
-    with open(join(root_dir, "reconstruction_subject0.npz")) as f:
+    subject = 0
+
+    with open(join(root_dir, "reconstruction_subject{}.npz".format(subject)),
+              "rb") as f:
         d = np.load(f)
         y = d["y"]
         diff = d["diff"]
 
+    with open(join(root_dir, "grad_subject{}.npz".format(subject)), "rb") as f:
+        d = np.load(f)
+        grad = d["data"]
+
+    print(grad.shape)
+    exit()
+
     # x = np.arange(91 * 109 * 91 * 150).reshape([91, 109, 91, 150])
     # y = x + np.random.rand(x.shape)
 
+    x = y + diff
+    print(y.shape)
+    print(diff.shape)
     z_list = [33, 38, 43, 48, 53, 58, 63, 68]
 
-    for z in z_list:
-        x_2d = x[:, :, :, z]
-        y_2d = y[:, :, :, z]
-        x_masked = x_2d * mask
-        y_masked = y_2d * mask
-        diff = y_masked - x_masked
-        fig, axes = plt.subplots(1, 3)
-        for i, ax in enumerate(axes):
-            ax.imshow(base, cmap='gray')
-            ax.set_clim([0, 1])
-            if i == 1:
-                ax.imshow(x_2d, cmap='hot', alpha=0.6)
-                ax.get_images.set_clim([0, 1])
+    def p(__x):
+        print("min: {}\nmax:{}".format(np.min(__x), np.max(__x)))
+
+    def my_cmap(x, cmap, cmin, cmax, threshold, opacity_absolute=False):
+        assert isinstance(x, np.ndarray)
+        assert len(x.shape) == 2
+        y = cmap(Normalize(cmin, cmax, clip=True)(x))
+        alpha = np.copy(x)
+        if opacity_absolute:
+            cmean = (cmin + cmax) / 2
+            alpha = (alpha - cmean) / (cmax - cmean)
+            alpha = np.abs(alpha)
+        else:
+            alpha = (alpha - cmin) / (cmax - cmin)
+
+        alpha = alpha / threshold
+        assert isinstance(alpha, np.ndarray)
+        alpha[alpha > 1] = 1
+        alpha[alpha < 0] = 0
+        y[..., -1] = alpha
+        return y
+
+    imsize = np.array((91, 109))
+    figsize = imsize * np.array((len(z_list), 4))
+    figsize = np.flip(figsize / np.sqrt(np.sum(figsize**2)) * 15, axis=0)
+    figsize = tuple(figsize)
+    print(figsize)
+
+    for frame in range(0, 150, 10):
+        fig, axeses = plt.subplots(len(z_list), 4)
+        fig.set_size_inches(*figsize)
+        fig.subplots_adjust(left=0.01, right=1-0.01, bottom=0.01, top=1-0.01, wspace=0.01, hspace=0.01)
+        for j, z in enumerate(z_list):
+            black = np.zeros(shape=base[:, :, z].shape)
+            base_2d = base[:, :, z]
+            p(base_2d)
+            x_2d = x[frame, :, :, z]
+            x_2d_c = my_cmap(x_2d, cmap=plt.cm.RdBu, cmin=-1, cmax=1, threshold=0.5, opacity_absolute=True)
+            p(x_2d)
+            y_2d = y[frame, :, :, z]
+            y_2d_c = my_cmap(y_2d, cmap=plt.cm.RdBu, cmin=-1, cmax=1, threshold=0.5, opacity_absolute=True)
+            p(y_2d)
+            diff_2d = x_2d - y_2d
+            diff_2d_c = my_cmap(diff_2d, cmap=plt.cm.RdBu, cmin=-1, cmax=1, threshold=0.5, opacity_absolute=True)
+            p(diff_2d)
+            grad_2d = grad[frame, :, :, z]
+            grad_2d_c = my_cmap(grad_2d, cmap=plt.cm.hot, cmin=0, cmax=0.0001, threshold=0.5, opacity_absolute=False)
+            p(grad_2d)
+            # x_masked = x_2d * mask
+            # y_masked = y_2d * mask
+            axes = axeses[j]
+            for i, ax in enumerate(axes):
+                ax.set_axis_off()
+                if i == 0:
+                    ax.imshow(black, cmap='gray')
+                    ax.imshow(x_2d_c)
+                elif i == 1:
+                    ax.imshow(black, cmap='gray')
+                    ax.imshow(y_2d_c)
+                elif i == 2:
+                    ax.imshow(black, cmap='gray')
+                    ax.imshow(diff_2d_c)
+                else:
+                    ax.imshow(base_2d, cmap='gray')
+                    ax.imshow(grad_2d_c)
+        fig.savefig(join("C:/Users/hashimoto/Pictures/python_output/",
+                         "from_left_original_reconstructed_diff_grad_data_subject{}_frame{}.eps".format(
+                             subject, frame)),
+                    format="eps")
 
 
 def grad_correlation_inter_subject():
@@ -422,4 +512,4 @@ def plotMeanHist():
 
 
 if __name__ == '__main__':
-    grad_correlation_inter_subject()
+    imshow_change_data()
